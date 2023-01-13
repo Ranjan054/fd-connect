@@ -508,7 +508,7 @@ button:focus-within {
     color: #323232;
 }
 
-.status-missed {
+.status-pending {
     background: #F3F3F3;
     filter: grayscale(1);
 }
@@ -525,7 +525,7 @@ button:focus-within {
     color: #7CCC89;
 }
 
-.status-missed .doctor-status-wrap span {
+.status-pending .doctor-status-wrap span {
     color: #979797;
 }
 

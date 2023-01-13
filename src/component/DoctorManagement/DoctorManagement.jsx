@@ -1,17 +1,63 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useFetch } from '../../hooks/useFetch'
 import Spinner from '../Spinner/Spinner';
+import { status } from '../../utils/type-util'
 
 const DoctorManagement = () => {
+
+  const tabData = [
+    {
+      content: "All",
+      controls: "pills-home",
+      active: true
+    },
+    {
+      content: "Approved",
+      controls: "pills-profile",
+      active: false
+    },
+    {
+      content: "Pending",
+      controls: "pills-contact",
+      active: false
+    },
+    {
+      content: "Rejected",
+      controls: "pills-disabled",
+      active: false
+    }
+  ];
+
+  const [showTab, setShowTab] = useState("pills-home");
+  const [filterList, setFilterList] = useState([]);
+  const [flag, setFlag] = useState(false);
+  // const [loading, setLoading] = useState(false);
+
 
   const response = useFetch({
     request: "/admin/allDoctors",
     type: "get"
   })
 
-  console.log(response, "doctor manage");
+  const tabClickHandler = (tab, ctr, index) => {
+    // setLoading(true);
+    if (index === 0) {
+      setFlag(false);
+      // setLoading(false);
+      return;
+    }
+    let result = response?.data?.doctors.filter((list) => status(list.isApproved) === tab);
+    setFilterList(result);
+    // setLoading(false);
+    setFlag(true);
+    setShowTab(ctr);
+  }
+
+  // console.log(response, "doctor manage");
 
   if (response?.loading) return <Spinner />
+  // if (loading) return <Spinner />
+
   if (response?.error) {
     return (
       <div className="col-xl-10 col-lg-9 col-md-8 col-12  px-md-0">
@@ -26,18 +72,13 @@ const DoctorManagement = () => {
         <div className="doctor-management-head-wrap">
           <div className="management-head-tab-wrap">
             <ul className="nav nav-pills mb-3" id="pills-tab" role="tablist">
-              <li className="nav-item" role="presentation">
-                <button className="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">All</button>
-              </li>
-              <li className="nav-item" role="presentation">
-                <button className="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Approved</button>
-              </li>
-              <li className="nav-item" role="presentation">
-                <button className="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Pending</button>
-              </li>
-              <li className="nav-item" role="presentation">
-                <button className="nav-link" id="pills-disabled-tab" data-bs-toggle="pill" data-bs-target="#pills-disabled" type="button" role="tab" aria-controls="pills-disabled" aria-selected="false">Rejected</button>
-              </li>
+              {
+                tabData.map((el, index) =>
+                  <li key={el?.content} className="nav-item" role="presentation">
+                    <button onClick={() => tabClickHandler(el?.content, el?.controls, index)} className={`nav-link ${index === 0 ? "active" : ""} `} id={`${el?.controls}-tab`} data-bs-toggle="pill" data-bs-target={"#" + el?.controls} type="button" role="tab" aria-controls={el?.controls} aria-selected={el?.active}>{el?.content}</button>
+                  </li>
+                )
+              }
             </ul>
           </div>
           <div className="management-head-search-wrap">
@@ -52,11 +93,12 @@ const DoctorManagement = () => {
           <div className="row">
             <div className="col-md-8 col-lg-9">
               <div className="tab-content p-5 pe-2" id="pills-tabContent">
-                <div className="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab" tabIndex="0">
+                <div className="tab-pane fade show active" id={showTab + "-tab"} role="tabpanel" aria-labelledby={showTab} tabIndex="0">
                   {
                     response?.data?.doctors &&
-                    response?.data?.doctors.map((el) =>
-                      <div key={el?.id} className={`doctor-manage-list-wrap ${el?.isApproved ? "" : "status-rejectted"}`}>
+                    (flag ? filterList : response.data.doctors).map((el) =>
+                      // <div key={el?.id} className={`doctor-manage-list-wrap ${el?.isApproved ? "" : "status-rejectted"}`}>
+                      <div key={el?.id} className={`doctor-manage-list-wrap status-${status(el?.isApproved).toLowerCase()}`}>
                         <div className="media">
                           <img src={el?.profilePicture} alt={el?.firstName} className="img-fluid profile-img" />
                           <div className="media-body">
@@ -64,15 +106,15 @@ const DoctorManagement = () => {
                             <h6>Specialist of {el?.specializationSubject}</h6>
                             <ul>
                               {
-                                [...Array(Math.round(el?.averageRating))].map((e, i) => 
-                                <li key={i}><i className="fas fa-star"></i></li>)
+                                [...Array(Math.round(el?.averageRating))].map((e, i) =>
+                                  <li key={i}><i className="fas fa-star"></i></li>)
                               }
                               <li><span> {Math.round(el?.averageRating)} <div className="text-dark d-inline">({el?.totalRating})</div></span></li>
                             </ul>
                           </div>
                         </div>
                         <div className="doctor-status-wrap">
-                          <span className={el?.isApproved ? "approved" : ""}>{el?.isApproved ?"Approved": "Rejected"}</span>
+                          <span className={el?.isApproved ? "approved" : ""}>{status(el?.isApproved)}</span>
                           <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#exampleModal"><i className="fas fa-angle-right"></i></a>
                         </div>
                       </div>)
