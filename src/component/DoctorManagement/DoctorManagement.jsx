@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useFetch } from '../../hooks/useFetch'
 import Spinner from '../Spinner/Spinner';
 import { status } from '../../utils/type-util'
+import Modal from '../Modal/Modal';
 
 const DoctorManagement = () => {
 
@@ -32,12 +33,13 @@ const DoctorManagement = () => {
   const [filterList, setFilterList] = useState([]);
   const [flag, setFlag] = useState(false);
   // const [loading, setLoading] = useState(false);
-
+  const [show, setShow] = useState(false);
+  const [id, setId] = useState("");
 
   const response = useFetch({
     request: "/admin/allDoctors",
     type: "get"
-  })
+  });
 
   const tabClickHandler = (tab, ctr, index) => {
     // setLoading(true);
@@ -51,6 +53,18 @@ const DoctorManagement = () => {
     // setLoading(false);
     setFlag(true);
     setShowTab(ctr);
+  }
+
+  const openModalHandler = (id) => {
+    console.log("modal doctor management");
+    setId(id)
+    setShow(true);
+    // return <Modal id={id} />
+    // console.log(id, "id");
+  }
+
+  const closeModalHandler = () => {
+    setShow(false);
   }
 
   // console.log(response, "doctor manage");
@@ -115,13 +129,16 @@ const DoctorManagement = () => {
                         </div>
                         <div className="doctor-status-wrap">
                           <span className={el?.isApproved ? "approved" : ""}>{status(el?.isApproved)}</span>
-                          <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#exampleModal"><i className="fas fa-angle-right"></i></a>
+                          {/* <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#exampleModal"><i className="fas fa-angle-right"></i></a> */}
+                          <a href="javascript:void(0)" onClick={() => openModalHandler(el?.id)} data-bs-toggle="modal" data-bs-target="#exampleModal"><i className="fas fa-angle-right"></i></a>
                         </div>
                       </div>)
                   }
                 </div>
               </div>
             </div>
+
+
             <div className="col-md-4 col-lg-3">
               <div className="right-sidebar-wrap">
                 <h4>Subject</h4>
@@ -290,7 +307,6 @@ const DoctorManagement = () => {
                       </ul>
                     </label>
                   </div>
-
                 </div>
                 <div className="rightbar-filter-bttn">
                   <a href="#">Apply</a>
@@ -301,130 +317,10 @@ const DoctorManagement = () => {
         </div>
       </div>
 
-
-      <div className="modal-section">
-        <div className="modal fade " id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-main-txt">
-                <a href="#" data-bs-dismiss="modal" aria-label="Close" className="d-block text-end">
-                  <img src="./assets/images/close-icon.svg" alt="X" className="img-fluid" width="40" />
-                </a>
-                <div className="modal-tab-wrap">
-                  <ul className="nav nav-pills mb-3" id="pills-tab" role="tablist">
-                    <li className="nav-item" role="presentation">
-                      <button className="nav-link active" id="pills-homes-tab" data-bs-toggle="pill" data-bs-target="#pills-homes" type="button" role="tab" aria-controls="pills-homes" aria-selected="true">Profile</button>
-                    </li>
-                    <li className="nav-item" role="presentation">
-                      <button className="nav-link" id="pills-profiles-tab" data-bs-toggle="pill" data-bs-target="#pills-profiles" type="button" role="tab" aria-controls="pills-profiles" aria-selected="false">Uploads</button>
-                    </li>
-                  </ul>
-
-                  <div className="tab-content" id="pills-tabContent">
-                    <div className="tab-pane fade show active" id="pills-homes" role="tabpanel" aria-labelledby="pills-homes-tab" tabIndex="0">
-                      <div className="modal-tab-txt-wrap">
-                        <div className="row">
-                          <div className="col-lg-3">
-                            <h5>Student (Mentor)</h5>
-                            <p>Harvard University, (IV sem)</p>
-                            <p>Studying <strong>Cardiology</strong></p>
-
-                            <h5>Contact</h5>
-                            <p>+91 96996 96996</p>
-                            <a href="mailto:Ozark.343@gmail.com">Ozark.343@gmail.com</a>
-                          </div>
-                          <div className="col-lg-6">
-                            <div className="modal-profile-box">
-                              <img src="./assets/images/mentor-01.png" alt="a" className="img-fluid" />
-                              <h5>Ozark Cling</h5>
-                              <h6>India</h6>
-                            </div>
-                          </div>
-                        </div>
-
-                        <h5>Mentoring Subjects</h5>
-                        <img src="./assets/images/m-01.png" alt="a" className="img-fluid" />
-                        <img src="./assets/images/m-03.png" alt="a" className="img-fluid" />
-                        <img src="./assets/images/m-02.png" alt="a" className="img-fluid" />
-                        <img src="./assets/images/m-04.png" alt="a" className="img-fluid" />
-
-                        <h5>About</h5>
-                        <p className="mb-3">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nisi tortor morbi lobortis tincidunt nunc mauris id molestie convallis. Dui, eu viverra dis lectus eget enim eleifend pharetra. Egestas u viverra dis lectus eget enim eleifend pharetra. Egestas adipiscing pretium sed sit lobortis. </p>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nisi tortor morbi lobortis tincidunt nunc mauris id molestie convallis. Dui, eu viverra dis lectus eget enim eleifend pharetra. Egestas adipiscing pretium sed sit lobortis.
-                        </p>
-
-                        <h5>Experience that stands out</h5>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nisi tortor morbi lobortis tincidunt nunc mauris id molestie convallis. Dui, eu viverra dis retium sed sit lobortis.
-                        </p>
-
-                        <h5>Language</h5>
-                        <p>English, German</p>
-                      </div>
-                      <div className="modal-ftr-bttn">
-                        <button type="reset" className="btn btn-reject">Reject</button>
-                        <button type="reset" className="btn btn-accept">Accept</button>
-                      </div>
-                    </div>
-                    <div className="tab-pane fade" id="pills-profiles" role="tabpanel" aria-labelledby="pills-profiles-tab" tabIndex="0">
-                      <div className="modal-tab-txt-wrap">
-                        <h5>Documents</h5>
-                      </div>
-
-                      <div className="modal-post-height-fixed">
-                        <div className="row">
-                          <div className="col-md-4">
-                            <div className="modal-post-box">
-                              <img src="./assets/images/document-01.png" alt="Post" className="img-fluid" />
-                              <span>ID</span>
-                            </div>
-                          </div>
-                          <div className="col-md-4">
-                            <div className="modal-post-box">
-                              <img src="./assets/images/document-02.png" alt="Post" className="img-fluid" />
-                              <span>DEGREE</span>
-                            </div>
-                          </div>
-                          <div className="col-md-4">
-                            <div className="modal-post-box">
-                              <img src="./assets/images/post-01.png" alt="Post" className="img-fluid" />
-                              <span>23 nov 2022, 14:03</span>
-                            </div>
-                          </div>
-                          <div className="col-md-4">
-                            <div className="modal-post-box">
-                              <img src="./assets/images/post-01.png" alt="Post" className="img-fluid" />
-                              <span>23 nov 2022, 14:03</span>
-                            </div>
-                          </div>
-                          <div className="col-md-4">
-                            <div className="modal-post-box">
-                              <img src="./assets/images/post-01.png" alt="Post" className="img-fluid" />
-                              <span>23 nov 2022, 14:03</span>
-                            </div>
-                          </div>
-                          <div className="col-md-4">
-                            <div className="modal-post-box">
-                              <img src="./assets/images/post-01.png" alt="Post" className="img-fluid" />
-                              <span>23 nov 2022, 14:03</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="modal-ftr-bttn">
-                        <button type="reset" className="btn btn-reject">Reject</button>
-                        <button type="reset" className="btn btn-accept">Accept</button>
-                      </div>
-
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+        {
+          <Modal doctor={true} id={id} show={show} closeModal={closeModalHandler}/>
+        }
+        
     </>
   )
 }

@@ -7,6 +7,11 @@ import classIcon from "../../assets/images/class-manage-icon.svg"
 import passwordIcon from "../../assets/images/change-pas-icon.svg"
 
 const Homepage = () => {
+
+    // const path = window.location.pathname;
+
+    console.log();
+
     return (
         <div>
             <section className="main-area-wrap">
