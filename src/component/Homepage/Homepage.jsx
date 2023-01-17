@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
 import dashboardIcon from "../../assets/images/dashboard-icon-1.svg"
 import doctorIcon from "../../assets/images/doctor-icon.svg"
@@ -7,10 +7,15 @@ import classIcon from "../../assets/images/class-manage-icon.svg"
 import passwordIcon from "../../assets/images/change-pas-icon.svg"
 
 const Homepage = () => {
+    // const [currentPath, setCurrentPath] = useState(window.location.pathname)
 
-    // const path = window.location.pathname;
-
-    console.log();
+    // console.log("homepage");
+    // useEffect(() => {
+    //     if (currentPath === "/") {
+    //     setCurrentPath(window.location.pathname)
+    //     }
+    // }, [currentPath])
+    
 
     return (
         <div>
@@ -33,8 +38,8 @@ const Homepage = () => {
                                     <ul>
                                         <li>
                                             <NavLink className={({ isActive }) =>
-                                                isActive ? 'active' : ''
-                                            } to="dashboard">
+                                                (isActive ) ? 'active' : ''
+                                            } to="/">
                                                 <img src={dashboardIcon} alt="Icon" className="img-fluid" /> Dashboard
                                             </NavLink>
                                         </li>

@@ -50,13 +50,13 @@ const DoctorManagement = () => {
     }
     let result = response?.data?.doctors.filter((list) => status(list.isApproved) === tab);
     setFilterList(result);
+    console.log("filterd data");
     // setLoading(false);
     setFlag(true);
     setShowTab(ctr);
   }
 
   const openModalHandler = (id) => {
-    console.log("modal doctor management");
     setId(id)
     setShow(true);
     // return <Modal id={id} />
@@ -116,7 +116,7 @@ const DoctorManagement = () => {
                         <div className="media">
                           <img src={el?.profilePicture} alt={el?.firstName} className="img-fluid profile-img" />
                           <div className="media-body">
-                            <h5>{el?.firstName}</h5>
+                            <h5>{el?.firstName} {el?.lastName}</h5>
                             <h6>Specialist of {el?.specializationSubject}</h6>
                             <ul>
                               {

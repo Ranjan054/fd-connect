@@ -1,6 +1,8 @@
+import moment from 'moment';
 import React, { useState } from 'react'
 import { useFetch } from '../../hooks/useFetch';
-import { status } from '../../utils/type-util';
+import { classStatus } from '../../utils/type-util';
+import Spinner from '../Spinner/Spinner';
 
 const ClassManagement = () => {
 
@@ -32,12 +34,10 @@ const ClassManagement = () => {
     }
   ];
 
+
   const [showTab, setShowTab] = useState("pills-home");
   const [filterList, setFilterList] = useState([]);
   const [flag, setFlag] = useState(false);
-  // const [loading, setLoading] = useState(false);
-  const [show, setShow] = useState(false);
-  const [id, setId] = useState("");
 
   const response = useFetch({
     request: "/admin/bookedClasses",
@@ -51,10 +51,20 @@ const ClassManagement = () => {
       // setLoading(false);
       return;
     }
-    let result = response?.data?.list.filter((item) => status(item.isApproved) === tab);
+    let result = response?.data?.list.filter((item) => classStatus(item.classStatus) === tab);
     setFilterList(result);
     setFlag(true);
     setShowTab(ctr);
+  }
+
+  if (response?.loading) return <Spinner />
+
+  if (response?.error) {
+    return (
+      <div className="col-xl-10 col-lg-9 col-md-8 col-12  px-md-0">
+        <h3 className='error-message'>Something went wrong, please try again!</h3>
+      </div>
+    )
   }
 
   return (
@@ -69,21 +79,6 @@ const ClassManagement = () => {
                 </li>
               )
             }
-            {/* <li className="nav-item" role="presentation">
-              <button className="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">All</button>
-            </li>
-            <li className="nav-item" role="presentation">
-              <button className="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Upcoming</button>
-            </li>
-            <li className="nav-item" role="presentation">
-              <button className="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Completed</button>
-            </li>
-            <li className="nav-item" role="presentation">
-              <button className="nav-link" id="pills-disabled-tab" data-bs-toggle="pill" data-bs-target="#pills-disabled" type="button" role="tab" aria-controls="pills-disabled" aria-selected="false">Cancelled</button>
-            </li>
-            <li className="nav-item" role="presentation">
-              <button className="nav-link" id="pills-disableds-tab" data-bs-toggle="pill" data-bs-target="#pills-disableds" type="button" role="tab" aria-controls="pills-disableds" aria-selected="false">Missed</button>
-            </li> */}
           </ul>
         </div>
         <div className="management-head-search-wrap">
@@ -99,1041 +94,85 @@ const ClassManagement = () => {
           <div className="col-md-8 col-lg-9">
             <div className="tab-content p-5 pe-2" id="pills-tabContent">
 
-              <div className="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab" tabIndex="0">
+              <div className="tab-pane fade show active" id={showTab + "-tab"} role="tabpanel" aria-labelledby={showTab} tabIndex="0">
                 {/* <!-- class single item start --> */}
-                <div className="class-list-wrap">
-                  <div className="row align-items-center">
-                    <div className="col-md-6 col-lg-7">
+
+                {
+                  response?.data?.list && (flag ? filterList : response.data.list).map((el) =>
+                    <div key={el?.id} className={`class-list-wrap ${classStatus(el?.classStatus)}`}>
                       <div className="row align-items-center">
-                        <div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/doctor-01.png" alt="Doctor" className="img-fluid" />
+                        <div className="col-md-6 col-lg-7">
+                          <div className="row align-items-center">
+                            <div className="col-md-4">
+                              <div className="class-list-doctor">
+                                <img src={el?.mentorDetails[0]?.mentorProfilePicture} alt={el?.mentorDetails[0]?.mentorFirstName} className="img-fluid profile-img" />
+                                <h5>{el?.mentorDetails[0]?.mentorFirstName} {el?.mentorDetails[0]?.mentorLastName}</h5>
 
-                            <h5>Dr. Lejla Hamed</h5>
-                            <ul>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><span>4.8 <div className="text-dark d-inline">(649)</div></span></li>
-                            </ul>
+                                {/* <ul>
+                                  {
+                                    [...Array(Math.round(el?.mentorDetails[0]?.averageRating))].map((e, i) =>
+                                      <li key={i}><i className="fas fa-star"></i></li>)
+                                  }
+                                  <li><span> {Math.round(el?.mentorDetails[0]?.averageRating)} <div className="text-dark d-inline">({el?.mentorDetails[0]?.totalRating})</div></span></li>
+                                </ul> */}
+
+                              </div>
+                            </div>
+                            <div className="col-md-4">
+                              <div className="join-box-wrap">
+                                <h6>{el?.id}</h6>
+                                <img src={"./assets/images/"+classStatus(el?.classStatus)+".svg"} alt={classStatus(el?.classStatus)} className="img-fluid" />
+                                <h4>{el?.classSubject}</h4>
+                                <p>{el?.classDuration} <i className="fas fa-circle"></i> <strong className={`text-${classStatus(el?.classStatus)}`}>{classStatus(el?.classStatus)}</strong></p>
+                              </div>
+                            </div><div className="col-md-4">
+                              <div className="class-list-doctor">
+                                <img src={el?.studentDetails[0]?.studentProfilePicture} alt={el?.studentDetails[0]?.studentFirstName} className="img-fluid profile-img" />
+                                <h5>{el?.studentDetails[0]?.studentFirstName} {el?.studentDetails[0]?.studentLastName}</h5>
+                              </div>
+                            </div>
                           </div>
                         </div>
-                        <div className="col-md-4">
-                          <div className="join-box-wrap">
-                            <h6>CLA-1A4PED</h6>
-                            <img src="./assets/images/line-circle-red.svg" alt="a" className="img-fluid" />
-                            <h4>Pediatrics</h4>
-                            <p>20 Mins <i className="fas fa-circle"></i> <strong>Missed</strong></p>
-                          </div>
-                        </div><div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/student-05.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Lucian Chinping</h5>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-md-6 col-lg-5">
-                      <div className="class-lists-table">
-                        <table>
-                          <tr>
-                            <th>
-                              Booking Date:
-                            </th>
-                          </tr>
-                          <tr>
-                            <td className="pb-4">
-                              24th Aug - 2021  11:40:03 IST
-                            </td>
-                          </tr>
-                          <tr>
-                            <th>Class Date:</th>
-                          </tr>
-                          <tr>
-                            <td>
-                              29th Aug - 2021  20:00 IST
-                            </td>
-                          </tr>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* <!-- class single item end -->
-                <!-- class single item start --> */}
-                <div className="class-list-wrap pe-4" style={{ background: "#FBF1ED" }} >
-                  <div className="row align-items-center">
-                    <div className="col-md-6 col-lg-7">
-                      <div className="row align-items-center">
-                        <div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/doctor-01.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Dr. Lejla Hamed</h5>
-                            <ul>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><span>4.8 <div className="text-dark d-inline">(649)</div></span></li>
-                            </ul>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="join-box-wrap">
-                            <h6>CLA-1A4PED</h6>
-                            <img src="./assets/images/line-circle-red.svg" alt="a" className="img-fluid" />
-                            <h4>Pediatrics</h4>
-                            <p>20 Mins <i className="fas fa-circle"></i> <strong>Missed</strong></p>
-                          </div>
-                        </div><div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/student-05.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Lucian Chinping</h5>
+                        <div className="col-md-6 col-lg-5">
+                          <div className="class-lists-table">
+                            <table>
+                              <thead>
+                                <tr>
+                                  <th>
+                                    Booking Date:
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr>
+                                  <td className="pb-4">
+                                    {el?.createdOn && moment(el?.createdOn).format('Do MMMM-YYYY h:mm:ss') + " IST"}
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <th>Class Date:</th>
+                                </tr>
+                                <tr>
+                                  <td>
+                                    {el?.classStartPoint && moment(el?.classStartPoint).format('Do MMMM-YYYY h:mm:ss') + " IST"}
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
                           </div>
                         </div>
                       </div>
                     </div>
-                    <div className="col-md-5 col-lg-4">
-                      <div className="class-lists-table">
-                        <table>
-                          <tr>
-                            <th>
-                              Booking Date:
-                            </th>
-                          </tr>
-                          <tr>
-                            <td className="pb-4">
-                              24th Aug - 2021  11:40:03 IST
-                            </td>
-                          </tr>
-                          <tr>
-                            <th>Class Date:</th>
-                          </tr>
-                          <tr>
-                            <td>
-                              29th Aug - 2021  20:00 IST
-                            </td>
-                          </tr>
-                        </table>
-                      </div>
-
-                    </div>
-                    <div className="col-md-1 text-end">
-                      <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#exampleModal"><i className="fas fa-angle-right"></i></a>
-                    </div>
-                  </div>
-                </div>
-                {/* <!-- class single item end -->
-                <!-- class single item start --> */}
-                <div className="class-list-wrap bg-transparent">
-                  <div className="row align-items-center">
-                    <div className="col-md-6 col-lg-7">
-                      <div className="row align-items-center">
-                        <div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/doctor-01.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Dr. Lejla Hamed</h5>
-                            <ul>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><span>4.8 <div className="text-dark d-inline">(649)</div></span></li>
-                            </ul>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="join-box-wrap">
-                            <h6>CLA-1A4PED</h6>
-                            <img src="./assets/images/line-circle-red.svg" alt="a" className="img-fluid" />
-                            <h4>Pediatrics</h4>
-                            <p>20 Mins <i className="fas fa-circle"></i> <strong>Missed</strong></p>
-                          </div>
-                        </div><div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/student-05.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Lucian Chinping</h5>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-md-6 col-lg-5">
-                      <div className="class-lists-table">
-                        <table>
-                          <tr>
-                            <th>
-                              Booking Date:
-                            </th>
-                          </tr>
-                          <tr>
-                            <td className="pb-4">
-                              24th Aug - 2021  11:40:03 IST
-                            </td>
-                          </tr>
-                          <tr>
-                            <th>Class Date:</th>
-                          </tr>
-                          <tr>
-                            <td>
-                              29th Aug - 2021  20:00 IST
-                            </td>
-                          </tr>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* <!-- class single item end -->
-                <!-- class single item start --> */}
-                <div className="class-list-wrap  bg-transparent">
-                  <div className="row align-items-center">
-                    <div className="col-md-6 col-lg-7">
-                      <div className="row align-items-center">
-                        <div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/doctor-01.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Dr. Lejla Hamed</h5>
-                            <ul>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><span>4.8 <div className="text-dark d-inline">(649)</div></span></li>
-                            </ul>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="join-box-wrap">
-                            <h6>CLA-1A4PED</h6>
-                            <img src="./assets/images/line-circle-red.svg" alt="a" className="img-fluid" />
-                            <h4>Pediatrics</h4>
-                            <p>20 Mins <i className="fas fa-circle"></i> <strong>Missed</strong></p>
-                          </div>
-                        </div><div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/student-05.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Lucian Chinping</h5>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-md-6 col-lg-5">
-                      <div className="class-lists-table">
-                        <table>
-                          <tr>
-                            <th>
-                              Booking Date:
-                            </th>
-                          </tr>
-                          <tr>
-                            <td className="pb-4">
-                              24th Aug - 2021  11:40:03 IST
-                            </td>
-                          </tr>
-                          <tr>
-                            <th>Class Date:</th>
-                          </tr>
-                          <tr>
-                            <td>
-                              29th Aug - 2021  20:00 IST
-                            </td>
-                          </tr>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* <!-- class single item end -->
-                <!-- class single item start --> */}
-                <div className="class-list-wrap" style={{ background: "#FBF1ED" }}>
-                  <div className="row align-items-center">
-                    <div className="col-md-6 col-lg-7">
-                      <div className="row align-items-center">
-                        <div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/doctor-01.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Dr. Lejla Hamed</h5>
-                            <ul>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><span>4.8 <div className="text-dark d-inline">(649)</div></span></li>
-                            </ul>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="join-box-wrap">
-                            <h6>CLA-1A4PED</h6>
-                            <img src="./assets/images/line-circle-red.svg" alt="a" className="img-fluid" />
-                            <h4>Pediatrics</h4>
-                            <p>20 Mins <i className="fas fa-circle"></i> <strong>Missed</strong></p>
-                          </div>
-                        </div><div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/student-05.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Lucian Chinping</h5>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-md-6 col-lg-5">
-                      <div className="class-lists-table">
-                        <table>
-                          <tr>
-                            <th>
-                              Booking Date:
-                            </th>
-                          </tr>
-                          <tr>
-                            <td className="pb-4">
-                              24th Aug - 2021  11:40:03 IST
-                            </td>
-                          </tr>
-                          <tr>
-                            <th>Class Date:</th>
-                          </tr>
-                          <tr>
-                            <td>
-                              29th Aug - 2021  20:00 IST
-                            </td>
-                          </tr>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* <!-- class single item end -->
-                <!-- class single item start --> */}
-                <div className="class-list-wrap bg-transparent">
-                  <div className="row align-items-center">
-                    <div className="col-md-6 col-lg-7">
-                      <div className="row align-items-center">
-                        <div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/doctor-01.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Dr. Lejla Hamed</h5>
-                            <ul>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><span>4.8 <div className="text-dark d-inline">(649)</div></span></li>
-                            </ul>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="join-box-wrap">
-                            <h6>CLA-1A4PED</h6>
-                            <img src="./assets/images/line-circle-red.svg" alt="a" className="img-fluid" />
-                            <h4>Pediatrics</h4>
-                            <p>20 Mins <i className="fas fa-circle"></i> <strong>Missed</strong></p>
-                          </div>
-                        </div><div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/student-05.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Lucian Chinping</h5>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-md-6 col-lg-5">
-                      <div className="class-lists-table">
-                        <table>
-                          <tr>
-                            <th>
-                              Booking Date:
-                            </th>
-                          </tr>
-                          <tr>
-                            <td className="pb-4">
-                              24th Aug - 2021  11:40:03 IST
-                            </td>
-                          </tr>
-                          <tr>
-                            <th>Class Date:</th>
-                          </tr>
-                          <tr>
-                            <td>
-                              29th Aug - 2021  20:00 IST
-                            </td>
-                          </tr>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* <!-- class single item end -->
-                <!-- class single item start --> */}
-                <div className="class-list-wrap" style={{ background: "#EDFBEF" }} >
-                  <div className="row align-items-center">
-                    <div className="col-md-6 col-lg-7">
-                      <div className="row align-items-center">
-                        <div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/doctor-01.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Dr. Lejla Hamed</h5>
-                            <ul>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><span>4.8 <div className="text-dark d-inline">(649)</div></span></li>
-                            </ul>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="join-box-wrap">
-                            <h6>CLA-1A4PED</h6>
-                            <img src="./assets/images/line-circle-red.svg" alt="a" className="img-fluid" />
-                            <h4>Pediatrics</h4>
-                            <p>20 Mins <i className="fas fa-circle"></i> <strong>Missed</strong></p>
-                          </div>
-                        </div><div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/student-05.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Lucian Chinping</h5>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-md-6 col-lg-5">
-                      <div className="class-lists-table">
-                        <table>
-                          <tr>
-                            <th>
-                              Booking Date:
-                            </th>
-                          </tr>
-                          <tr>
-                            <td className="pb-4">
-                              24th Aug - 2021  11:40:03 IST
-                            </td>
-                          </tr>
-                          <tr>
-                            <th>Class Date:</th>
-                          </tr>
-                          <tr>
-                            <td>
-                              29th Aug - 2021  20:00 IST
-                            </td>
-                          </tr>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* <!-- class single item end -->
-                <!-- class single item start --> */}
-                <div className="class-list-wrap" style={{ background: "#FEFAD5" }}>
-                  <div className="row align-items-center">
-                    <div className="col-md-6 col-lg-7">
-                      <div className="row align-items-center">
-                        <div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/doctor-01.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Dr. Lejla Hamed</h5>
-                            <ul>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><span>4.8 <div className="text-dark d-inline">(649)</div></span></li>
-                            </ul>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="join-box-wrap">
-                            <h6>CLA-1A4PED</h6>
-                            <img src="./assets/images/line-circle-red.svg" alt="a" className="img-fluid" />
-                            <h4>Pediatrics</h4>
-                            <p>20 Mins <i className="fas fa-circle"></i> <strong>Missed</strong></p>
-                          </div>
-                        </div><div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/student-05.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Lucian Chinping</h5>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-md-6 col-lg-5">
-                      <div className="class-lists-table">
-                        <table>
-                          <tr>
-                            <th>
-                              Booking Date:
-                            </th>
-                          </tr>
-                          <tr>
-                            <td className="pb-4">
-                              24th Aug - 2021  11:40:03 IST
-                            </td>
-                          </tr>
-                          <tr>
-                            <th>Class Date:</th>
-                          </tr>
-                          <tr>
-                            <td>
-                              29th Aug - 2021  20:00 IST
-                            </td>
-                          </tr>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* <!-- class single item end --> */}
-              </div>
-
-              <div className="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab" tabIndex="0">
-                {/* <!-- class single item start --> */}
-                <div className="class-list-wrap bg-transparent">
-                  <div className="row align-items-center">
-                    <div className="col-md-6 col-lg-7">
-                      <div className="row align-items-center">
-                        <div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/doctor-01.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Dr. Lejla Hamed</h5>
-                            <ul>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><span>4.8 <div className="text-dark d-inline">(649)</div></span></li>
-                            </ul>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="join-box-wrap">
-                            <h6>CLA-1A4PED</h6>
-                            <img src="./assets/images/line-circle-red.svg" alt="a" className="img-fluid" />
-                            <h4>Pediatrics</h4>
-                            <p>20 Mins <i className="fas fa-circle"></i> <strong>Missed</strong></p>
-                          </div>
-                        </div><div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/student-05.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Lucian Chinping</h5>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-md-6 col-lg-5">
-                      <div className="class-lists-table">
-                        <table>
-                          <tr>
-                            <th>
-                              Booking Date:
-                            </th>
-                          </tr>
-                          <tr>
-                            <td className="pb-4">
-                              24th Aug - 2021  11:40:03 IST
-                            </td>
-                          </tr>
-                          <tr>
-                            <th>Class Date:</th>
-                          </tr>
-                          <tr>
-                            <td>
-                              29th Aug - 2021  20:00 IST
-                            </td>
-                          </tr>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* <!-- class single item end -->
-                <!-- class single item start --> */}
-                <div className="class-list-wrap bg-transparent" >
-                  <div className="row align-items-center">
-                    <div className="col-md-6 col-lg-7">
-                      <div className="row align-items-center">
-                        <div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/doctor-01.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Dr. Lejla Hamed</h5>
-                            <ul>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><span>4.8 <div className="text-dark d-inline">(649)</div></span></li>
-                            </ul>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="join-box-wrap">
-                            <h6>CLA-1A4PED</h6>
-                            <img src="./assets/images/line-circle-red.svg" alt="a" className="img-fluid" />
-                            <h4>Pediatrics</h4>
-                            <p>20 Mins <i className="fas fa-circle"></i> <strong>Missed</strong></p>
-                          </div>
-                        </div><div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/student-05.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Lucian Chinping</h5>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-md-6 col-lg-5">
-                      <div className="class-lists-table">
-                        <table>
-                          <tr>
-                            <th>
-                              Booking Date:
-                            </th>
-                          </tr>
-                          <tr>
-                            <td className="pb-4">
-                              24th Aug - 2021  11:40:03 IST
-                            </td>
-                          </tr>
-                          <tr>
-                            <th>Class Date:</th>
-                          </tr>
-                          <tr>
-                            <td>
-                              29th Aug - 2021  20:00 IST
-                            </td>
-                          </tr>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* <!-- class single item end -->
-                <!-- class single item start --> */}
-                <div className="class-list-wrap bg-transparent">
-                  <div className="row align-items-center">
-                    <div className="col-md-6 col-lg-7">
-                      <div className="row align-items-center">
-                        <div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/doctor-01.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Dr. Lejla Hamed</h5>
-                            <ul>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><span>4.8 <div className="text-dark d-inline">(649)</div></span></li>
-                            </ul>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="join-box-wrap">
-                            <h6>CLA-1A4PED</h6>
-                            <img src="./assets/images/line-circle-red.svg" alt="a" className="img-fluid" />
-                            <h4>Pediatrics</h4>
-                            <p>20 Mins <i className="fas fa-circle"></i> <strong>Missed</strong></p>
-                          </div>
-                        </div><div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/student-05.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Lucian Chinping</h5>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-md-6 col-lg-5">
-                      <div className="class-lists-table">
-                        <table>
-                          <tr>
-                            <th>
-                              Booking Date:
-                            </th>
-                          </tr>
-                          <tr>
-                            <td className="pb-4">
-                              24th Aug - 2021  11:40:03 IST
-                            </td>
-                          </tr>
-                          <tr>
-                            <th>Class Date:</th>
-                          </tr>
-                          <tr>
-                            <td>
-                              29th Aug - 2021  20:00 IST
-                            </td>
-                          </tr>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* <!-- class single item end -->
-                <!-- class single item start --> */}
-                <div className="class-list-wrap bg-transparent">
-                  <div className="row align-items-center">
-                    <div className="col-md-6 col-lg-7">
-                      <div className="row align-items-center">
-                        <div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/doctor-01.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Dr. Lejla Hamed</h5>
-                            <ul>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><span>4.8 <div className="text-dark d-inline">(649)</div></span></li>
-                            </ul>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="join-box-wrap">
-                            <h6>CLA-1A4PED</h6>
-                            <img src="./assets/images/line-circle-red.svg" alt="a" className="img-fluid" />
-                            <h4>Pediatrics</h4>
-                            <p>20 Mins <i className="fas fa-circle"></i> <strong>Missed</strong></p>
-                          </div>
-                        </div><div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/student-05.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Lucian Chinping</h5>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-md-6 col-lg-5">
-                      <div className="class-lists-table">
-                        <table>
-                          <tr>
-                            <th>
-                              Booking Date:
-                            </th>
-                          </tr>
-                          <tr>
-                            <td className="pb-4">
-                              24th Aug - 2021  11:40:03 IST
-                            </td>
-                          </tr>
-                          <tr>
-                            <th>Class Date:</th>
-                          </tr>
-                          <tr>
-                            <td>
-                              29th Aug - 2021  20:00 IST
-                            </td>
-                          </tr>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* <!-- class single item end -->
-                <!-- class single item start --> */}
-                <div className="class-list-wrap bg-transparent">
-                  <div className="row align-items-center">
-                    <div className="col-md-6 col-lg-7">
-                      <div className="row align-items-center">
-                        <div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/doctor-01.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Dr. Lejla Hamed</h5>
-                            <ul>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><span>4.8 <div className="text-dark d-inline">(649)</div></span></li>
-                            </ul>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="join-box-wrap">
-                            <h6>CLA-1A4PED</h6>
-                            <img src="./assets/images/line-circle-red.svg" alt="a" className="img-fluid" />
-                            <h4>Pediatrics</h4>
-                            <p>20 Mins <i className="fas fa-circle"></i> <strong>Missed</strong></p>
-                          </div>
-                        </div><div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/student-05.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Lucian Chinping</h5>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-md-6 col-lg-5">
-                      <div className="class-lists-table">
-                        <table>
-                          <tr>
-                            <th>
-                              Booking Date:
-                            </th>
-                          </tr>
-                          <tr>
-                            <td className="pb-4">
-                              24th Aug - 2021  11:40:03 IST
-                            </td>
-                          </tr>
-                          <tr>
-                            <th>Class Date:</th>
-                          </tr>
-                          <tr>
-                            <td>
-                              29th Aug - 2021  20:00 IST
-                            </td>
-                          </tr>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* <!-- class single item end -->
-                <!-- class single item start --> */}
-                <div className="class-list-wrap bg-transparent">
-                  <div className="row align-items-center">
-                    <div className="col-md-6 col-lg-7">
-                      <div className="row align-items-center">
-                        <div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/doctor-01.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Dr. Lejla Hamed</h5>
-                            <ul>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><span>4.8 <div className="text-dark d-inline">(649)</div></span></li>
-                            </ul>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="join-box-wrap">
-                            <h6>CLA-1A4PED</h6>
-                            <img src="./assets/images/line-circle-red.svg" alt="a" className="img-fluid" />
-                            <h4>Pediatrics</h4>
-                            <p>20 Mins <i className="fas fa-circle"></i> <strong>Missed</strong></p>
-                          </div>
-                        </div><div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/student-05.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Lucian Chinping</h5>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-md-6 col-lg-5">
-                      <div className="class-lists-table">
-                        <table>
-                          <tr>
-                            <th>
-                              Booking Date:
-                            </th>
-                          </tr>
-                          <tr>
-                            <td className="pb-4">
-                              24th Aug - 2021  11:40:03 IST
-                            </td>
-                          </tr>
-                          <tr>
-                            <th>Class Date:</th>
-                          </tr>
-                          <tr>
-                            <td>
-                              29th Aug - 2021  20:00 IST
-                            </td>
-                          </tr>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* <!-- class single item end -->
-                <!-- class single item start --> */}
-                <div className="class-list-wrap bg-transparent">
-                  <div className="row align-items-center">
-                    <div className="col-md-6 col-lg-7">
-                      <div className="row align-items-center">
-                        <div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/doctor-01.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Dr. Lejla Hamed</h5>
-                            <ul>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><span>4.8 <div className="text-dark d-inline">(649)</div></span></li>
-                            </ul>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="join-box-wrap">
-                            <h6>CLA-1A4PED</h6>
-                            <img src="./assets/images/line-circle-red.svg" alt="a" className="img-fluid" />
-                            <h4>Pediatrics</h4>
-                            <p>20 Mins <i className="fas fa-circle"></i> <strong>Missed</strong></p>
-                          </div>
-                        </div><div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/student-05.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Lucian Chinping</h5>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-md-6 col-lg-5">
-                      <div className="class-lists-table">
-                        <table>
-                          <tr>
-                            <th>
-                              Booking Date:
-                            </th>
-                          </tr>
-                          <tr>
-                            <td className="pb-4">
-                              24th Aug - 2021  11:40:03 IST
-                            </td>
-                          </tr>
-                          <tr>
-                            <th>Class Date:</th>
-                          </tr>
-                          <tr>
-                            <td>
-                              29th Aug - 2021  20:00 IST
-                            </td>
-                          </tr>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* <!-- class single item end -->
-                <!-- class single item start --> */}
-                <div className="class-list-wrap bg-transparent">
-                  <div className="row align-items-center">
-                    <div className="col-md-6 col-lg-7">
-                      <div className="row align-items-center">
-                        <div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/doctor-01.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Dr. Lejla Hamed</h5>
-                            <ul>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><i className="fas fa-star"></i></li>
-                              <li><span>4.8 <div className="text-dark d-inline">(649)</div></span></li>
-                            </ul>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="join-box-wrap">
-                            <h6>CLA-1A4PED</h6>
-                            <img src="./assets/images/line-circle-red.svg" alt="a" className="img-fluid" />
-                            <h4>Pediatrics</h4>
-                            <p>20 Mins <i className="fas fa-circle"></i> <strong>Missed</strong></p>
-                          </div>
-                        </div><div className="col-md-4">
-                          <div className="class-list-doctor">
-                            <img src="./assets/images/student-05.png" alt="Doctor" className="img-fluid" />
-
-                            <h5>Lucian Chinping</h5>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-md-6 col-lg-5">
-                      <div className="class-lists-table">
-                        <table>
-                          <tr>
-                            <th>
-                              Booking Date:
-                            </th>
-                          </tr>
-                          <tr>
-                            <td className="pb-4">
-                              24th Aug - 2021  11:40:03 IST
-                            </td>
-                          </tr>
-                          <tr>
-                            <th>Class Date:</th>
-                          </tr>
-                          <tr>
-                            <td>
-                              29th Aug - 2021  20:00 IST
-                            </td>
-                          </tr>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* <!-- class single item end --> */}
-              </div>
-
-              <div className="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab" tabIndex="0">
-
-              </div>
-              <div className="tab-pane fade" id="pills-disabled" role="tabpanel" aria-labelledby="pills-disabled-tab" tabIndex="0">
-
-              </div>
-              <div className="tab-pane fade" id="pills-disableds" role="tabpanel" aria-labelledby="pills-disableds-tab" tabIndex="0">
-
+                  )
+                }
               </div>
             </div>
           </div>
 
 
+
           <div className="col-md-4 col-lg-3">
             <div className="right-sidebar-wrap pt-0">
-
-
               <div className="rightbar-experience-filter-wrap py-4" style={{ background: "#FAFAFA" }}>
                 <h4 className="ps-0">Tutor</h4>
                 <div className="form-check">

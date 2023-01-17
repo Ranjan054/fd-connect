@@ -10,12 +10,10 @@ import { useNavigate } from "react-router-dom";
 const Login = () => {
     const navigate = useNavigate();
 
-
     const [formData, setFormData] = useState({
         email: "",
         password: ""
     });
-    // const [isLogin, setIsLogin] = useState(false);
     const [show, setShow] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
 
@@ -36,7 +34,7 @@ const Login = () => {
                     // document.cookie = `token=${res.data.token}`;
                     setShowSuccess(true)
                     setTimeout(() => {
-                        navigate("/dashboard", { replace: true })
+                        navigate("/", { replace: true })
                     }, 200)
                 } else {
                     setShow(true)
@@ -82,11 +80,11 @@ const Login = () => {
                                                 <p>Enter your Email address and password</p>
 
                                                 <div className="form-floating mb-3">
-                                                    <input onChange={(e) => onChangeHandler('email', e)} type="email" className="form-control" id="floatingInput" placeholder="Enter your Email" />
+                                                    <input value={formData?.email} onChange={(e) => onChangeHandler('email', e)} type="email" className="form-control" id="floatingInput" placeholder="Enter your Email" />
                                                     <label htmlFor="floatingInput">Enter your Email</label>
                                                 </div>
                                                 <div className="form-floating mb-5">
-                                                    <input onChange={(e) => onChangeHandler('password', e)} type="password" className="form-control" id="floatingPassword" placeholder="Enter your Password" />
+                                                    <input value={formData?.password} onChange={(e) => onChangeHandler('password', e)} type="password" className="form-control" id="floatingPassword" placeholder="Enter your Password" />
                                                     <label htmlFor="floatingPassword">Enter your Password</label>
                                                 </div>
                                                 <br />

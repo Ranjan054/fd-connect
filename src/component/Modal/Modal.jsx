@@ -52,7 +52,7 @@ const Modal = (props) => {
                                                 <div className="modal-tab-txt-wrap">
                                                     <div className="row">
                                                         <div className="col-lg-3">
-                                                            {/* <h5>{props?.doctor ? "Doctor" : "Student"}</h5> */}
+                                                            <h5>{props?.student ? "Student" : "Mentor"}</h5>
                                                             {
                                                                 props?.doctor && <>
                                                                     <h5>Doctor</h5>
@@ -60,7 +60,7 @@ const Modal = (props) => {
                                                                 </>
                                                             }
                                                             <p>{response?.data?.specializationSubject}</p>
-                                                            <p>{response?.data?.country}</p>
+                                                            <p>{response?.data?.currentPlaceOfWork}</p>
                                                             {/* <p>{response?.data?.university}, ({response?.data?.semester})</p> */}
                                                             {/* <p>Studying <strong>Cardiology</strong></p> */}
 

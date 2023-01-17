@@ -109,7 +109,7 @@ const StudentManagement = () => {
                         <div className="media">
                           <img src={el?.profilePicture} alt={el?.firstName} className="img-fluid profile-img" />
                           <div className="media-body">
-                            <h5>{el?.firstName}</h5>
+                            <h5>{el?.firstName} {el?.lastName}</h5>
                             <h6>Specialist of {el?.specializationSubject}</h6>
                             <ul>
                               {

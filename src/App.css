@@ -761,7 +761,6 @@ button:focus-within {
 
 /* class list css start */
 .class-list-wrap {
-    background: #FFE5E5;
     border-bottom: 0.5px solid #979797;
     padding: 1rem 4rem;
 }
@@ -809,9 +808,9 @@ button:focus-within {
     font-size: 5px;
 }
 
-.join-box-wrap p strong {
+/* .join-box-wrap p strong {
     color: #FF3636;
-}
+} */
 
 .class-lists-table {
     border-left: 0.5px solid #979797;
@@ -1402,4 +1401,44 @@ button:focus-within {
 .language-wrapper {
     display: flex;
     gap: 10px;
+}
+
+.Missed, .Waiting-confirmation, .Rejected {
+    background-color: #FFE5E5;
+}
+
+.Cancelled {
+    background-color: #FBF1ED;
+}
+
+.Upcoming {
+    background-color: #34B3F1;
+}
+
+.Completed, .Approved {
+    background-color: #EDFBEF;
+}
+
+.Ongoing {
+    background-color: #F2A002;
+}
+
+.text-Missed, .text-Waiting-confirmation, .text-Rejected {
+    color: #FF3636;
+}
+
+.text-Cancelled {
+    color: #F48555;
+}
+
+.text-Upcoming {
+    color: #34B3F1;
+}
+
+.text-Completed, .text-Approved {
+    color: #7CCC89;
+}
+
+.text-Ongoing {
+    color: #F2A002;
 }
