@@ -35,6 +35,7 @@ const DoctorManagement = () => {
   // const [loading, setLoading] = useState(false);
   const [show, setShow] = useState(false);
   const [id, setId] = useState("");
+  const [isPending, setIsPending] = useState("");
 
   const response = useFetch({
     request: "/admin/allDoctors",
@@ -50,20 +51,22 @@ const DoctorManagement = () => {
     }
     let result = response?.data?.doctors.filter((list) => status(list.isApproved) === tab);
     setFilterList(result);
-    console.log("filterd data");
+    // console.log("filterd data");
     // setLoading(false);
     setFlag(true);
     setShowTab(ctr);
   }
 
-  const openModalHandler = (id) => {
-    setId(id)
+  const openModalHandler = (id, tabStatus) => {
+    setId(id);
+    setIsPending(tabStatus)
     setShow(true);
     // return <Modal id={id} />
     // console.log(id, "id");
   }
 
   const closeModalHandler = () => {
+    console.log("called by modal");
     setShow(false);
   }
 
@@ -130,7 +133,7 @@ const DoctorManagement = () => {
                         <div className="doctor-status-wrap">
                           <span className={el?.isApproved ? "approved" : ""}>{status(el?.isApproved)}</span>
                           {/* <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#exampleModal"><i className="fas fa-angle-right"></i></a> */}
-                          <a href="javascript:void(0)" onClick={() => openModalHandler(el?.id)} data-bs-toggle="modal" data-bs-target="#exampleModal"><i className="fas fa-angle-right"></i></a>
+                          <a href="javascript:void(0)" onClick={() => openModalHandler(el?.id, el?.isApproved)} data-bs-toggle="modal" data-bs-target="#exampleModal"><i className="fas fa-angle-right"></i></a>
                         </div>
                       </div>)
                   }
@@ -318,7 +321,7 @@ const DoctorManagement = () => {
       </div>
 
         {
-          <Modal doctor={true} id={id} show={show} closeModal={closeModalHandler}/>
+          <Modal doctor={true} id={id} isPending={isPending} show={show} closeModal={closeModalHandler}/>
         }
         
     </>

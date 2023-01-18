@@ -1442,3 +1442,8 @@ button:focus-within {
 .text-Ongoing {
     color: #F2A002;
 }
+
+.doc-img {
+    border-top-left-radius: 28px;
+    border-top-right-radius: 28px;
+}

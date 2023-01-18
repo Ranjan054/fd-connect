@@ -35,6 +35,8 @@ const StudentManagement = () => {
   // const [loading, setLoading] = useState(false);
   const [show, setShow] = useState(false);
   const [id, setId] = useState("");
+  const [isPending, setIsPending] = useState("");
+
 
   const response = useFetch({
     request: "/admin/allStudents",
@@ -56,9 +58,9 @@ const StudentManagement = () => {
 
   console.log(response, "res student");
 
-  const openModalHandler = (id) => {
-    console.log("modal");
-    setId(id)
+  const openModalHandler = (id, tabStatus) => {
+    setId(id);
+    setIsPending(tabStatus);
     setShow(true);
   }
 
@@ -122,7 +124,7 @@ const StudentManagement = () => {
                         </div>
                         <div className="doctor-status-wrap">
                           <span className={el?.isApproved ? "approved" : ""}>{status(el?.isApproved)}</span>
-                          <a href="javascript:void(0)" onClick={() => openModalHandler(el?.id)} data-bs-toggle="modal" data-bs-target="#exampleModal"><i className="fas fa-angle-right"></i></a>
+                          <a href="javascript:void(0)" onClick={() => openModalHandler(el?.id, el?.isApproved)} data-bs-toggle="modal" data-bs-target="#exampleModal"><i className="fas fa-angle-right"></i></a>
                         </div>
                       </div>
                     )
@@ -297,7 +299,7 @@ const StudentManagement = () => {
       </div>
 
       {
-        <Modal student={true} id={id} show={show} closeModal={closeModalHandler} />
+        <Modal student={true} id={id} isPending={isPending} show={show} closeModal={closeModalHandler} />
       }
     </>
   )

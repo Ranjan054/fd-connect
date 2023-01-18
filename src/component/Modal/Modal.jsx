@@ -1,10 +1,20 @@
-import React from 'react'
+import axios from 'axios';
+import React, { useState } from 'react'
 import { useFetch } from '../../hooks/useFetch'
 import Spinner from '../Spinner/Spinner';
+import { BASE_URL } from '../../constant';
+import { Toast, ToastContainer } from 'react-bootstrap';
+
+
 
 const Modal = (props) => {
+    console.log(props, "mm");
+    const token = localStorage.getItem("token");
+    const [show, setShow] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
 
-    console.log(props.id, "modal component");
+
+    // console.log(props.id, "modal component");
 
     const response = useFetch({
         request: "/admin/userDetails",
@@ -12,11 +22,56 @@ const Modal = (props) => {
         payload: { "userId": props?.id }
     });
 
-    console.log(response.loading, response.error, "res modal");
+    const getApproveHandler = (type) => {
+        let data = {};
+        data.userId = props?.id;
+        if (type === "accept") {
+            data.approved = 1;
+            data.remark = "approved";
+
+        } else if (type === "reject") {
+            data.approved = 2;
+            data.remark = "rejected";
+        }
+        axios.post(`${BASE_URL}/admin/getApproved`, data, { headers: { "Authorization": `Bearer ${token}` } })
+            .then((res) => {
+                if (res.data.status === 200) {
+                    if (type === "accept") {
+                        setShowSuccess(true);
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 500)
+                    } else if (type === "reject") {
+                        setShow(true);
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 500)
+                    }
+                }
+            })
+            .catch((err) => {
+                alert("Something went wrong")
+            })
+    }
+
+    // console.log(response.loading, response.error, "res modal");
 
     return (
         <>
-            {/* { */}
+            <ToastContainer className="p-4" position={"top-end"}>
+                <Toast onClose={() => setShow(false)} show={show} delay={3500} autohide bg={"warning"}>
+                    <Toast.Header>
+                        <strong className="me-auto">Success</strong>
+                    </Toast.Header>
+                    <Toast.Body>Rejected</Toast.Body>
+                </Toast>
+                <Toast onClose={() => setShowSuccess(false)} show={showSuccess} delay={3500} autohide bg={"success"}>
+                    <Toast.Header>
+                        <strong className="me-auto">Success</strong>
+                    </Toast.Header>
+                    <Toast.Body>Approved</Toast.Body>
+                </Toast>
+            </ToastContainer>
             <div className="modal-section">
                 <div className={`modal fade ${props?.show ? "show" : ""}`} id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" style={{ display: `${props?.show ? "block" : "none"}` }} aria-modal="true" role="dialog">
                     {/* <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel"> */}
@@ -32,11 +87,11 @@ const Modal = (props) => {
                                 {
                                     response?.error &&
                                     <div className="col-xl-10 col-lg-9 col-md-8 col-12  px-md-0">
-                                        <h3 className='error-message' style={{marginTop: "-3%"}}>Something went wrong, please try again!</h3>
+                                        <h3 className='error-message' style={{ marginTop: "-3%" }}>Something went wrong, please try again!</h3>
                                     </div>
                                 }
                                 {
-                                   !response?.loading && !response?.error && Object.keys(response).length !== 0 &&
+                                    !response?.loading && !response?.error && Object.keys(response).length !== 0 &&
                                     <div className="modal-tab-wrap">
                                         <ul className="nav nav-pills mb-3" id="pills-tab" role="tablist">
                                             <li className="nav-item" role="presentation">
@@ -52,12 +107,11 @@ const Modal = (props) => {
                                                 <div className="modal-tab-txt-wrap">
                                                     <div className="row">
                                                         <div className="col-lg-3">
-                                                            <h5>{props?.student ? "Student" : "Mentor"}</h5>
                                                             {
-                                                                props?.doctor && <>
+                                                                props?.doctor ? <>
                                                                     <h5>Doctor</h5>
                                                                     <h5>Position</h5>
-                                                                </>
+                                                                </> : props?.student ? <h5>Student</h5> : <h5>Mentor</h5>
                                                             }
                                                             <p>{response?.data?.specializationSubject}</p>
                                                             <p>{response?.data?.currentPlaceOfWork}</p>
@@ -111,10 +165,13 @@ const Modal = (props) => {
                                                         )
                                                     }
                                                 </div>
-                                                <div className="modal-ftr-bttn">
-                                                    <button type="reset" className="btn btn-reject">Reject</button>
-                                                    <button type="reset" className="btn btn-accept">Accept</button>
-                                                </div>
+                                                {
+                                                    props?.isPending === 2 && <div className="modal-ftr-bttn">
+                                                        <button onClick={() => getApproveHandler("reject")} className="btn btn-reject">Reject</button>
+                                                        <button onClick={() => getApproveHandler("accept")} className="btn btn-accept">Accept</button>
+                                                    </div>
+                                                }
+
                                             </div>
                                             <div className="tab-pane fade" id="pills-profiles" role="tabpanel" aria-labelledby="pills-profiles-tab" tabIndex="0">
                                                 <div className="modal-tab-txt-wrap">
@@ -126,7 +183,7 @@ const Modal = (props) => {
                                                             response?.data?.document?.map((el, index) =>
                                                                 <div key={index} className="col-md-4">
                                                                     <div className="modal-post-box">
-                                                                        <img src={el?.fileUrl} alt={el?.fileName} className="img-fluid" />
+                                                                        <img src={el?.fileUrl} alt={el?.fileName} className="img-fluid doc-img" />
                                                                         <span>{el?.fileName}</span>
                                                                     </div>
                                                                 </div>
@@ -134,11 +191,11 @@ const Modal = (props) => {
                                                         }
                                                     </div>
                                                 </div>
-                                                {
+                                                {/* {
                                                     response?.data?.posts && <div className="modal-tab-txt-wrap">
                                                         <h5>Posts</h5>
                                                     </div>
-                                                }
+                                                } */}
                                                 <div className="modal-post-height-fixed">
                                                     <div className="row">
                                                         {
@@ -153,112 +210,15 @@ const Modal = (props) => {
                                                         }
                                                     </div>
                                                 </div>
-                                                <div className="modal-ftr-bttn">
-                                                    <button type="reset" className="btn btn-reject">Reject</button>
-                                                    <button type="reset" className="btn btn-accept">Accept</button>
-                                                </div>
+                                                {
+                                                    props?.isPending === 2 && <div className="modal-ftr-bttn">
+                                                        <button onClick={() => getApproveHandler("reject")} className="btn btn-reject">Reject</button>
+                                                        <button onClick={() => getApproveHandler("accept")} className="btn btn-accept">Accept</button>
+                                                    </div>
+                                                }
+
                                             </div>
                                         </div>
-
-                                        {/* <div className="tab-content" id="pills-tabContent">
-                                            <div className="tab-pane fade show active" id="pills-homes" role="tabpanel" aria-labelledby="pills-homes-tab" tabIndex="0">
-                                                <div className="modal-tab-txt-wrap">
-                                                    <div className="row">
-                                                        <div className="col-lg-3">
-                                                            <h5>{props?.doctor ? "Doctor" : "Student"}</h5>
-                                                            <p>{response?.university}, ({response?.semester})</p>
-                                                            <p>Studying <strong>Cardiology</strong></p>
-
-                                                            <h5>Contact</h5>
-                                                            <p>+91 96996 96996</p>
-                                                            <a href="mailto:Ozark.343@gmail.com">Ozark.343@gmail.com</a>
-                                                        </div>
-                                                        <div className="col-lg-6">
-                                                            <div className="modal-profile-box">
-                                                                <img src="./assets/images/mentor-01.png" alt="a" className="img-fluid" />
-                                                                <h5>Ozark Cling</h5>
-                                                                <h6>India</h6>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <h5>Mentoring Subjects</h5>
-                                                    <img src="./assets/images/m-01.png" alt="a" className="img-fluid" />
-                                                    <img src="./assets/images/m-03.png" alt="a" className="img-fluid" />
-                                                    <img src="./assets/images/m-02.png" alt="a" className="img-fluid" />
-                                                    <img src="./assets/images/m-04.png" alt="a" className="img-fluid" />
-
-                                                    <h5>About</h5>
-                                                    <p className="mb-3">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nisi tortor morbi lobortis tincidunt nunc mauris id molestie convallis. Dui, eu viverra dis lectus eget enim eleifend pharetra. Egestas u viverra dis lectus eget enim eleifend pharetra. Egestas adipiscing pretium sed sit lobortis. </p>
-                                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nisi tortor morbi lobortis tincidunt nunc mauris id molestie convallis. Dui, eu viverra dis lectus eget enim eleifend pharetra. Egestas adipiscing pretium sed sit lobortis.
-                                                    </p>
-
-                                                    <h5>Experience that stands out</h5>
-                                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nisi tortor morbi lobortis tincidunt nunc mauris id molestie convallis. Dui, eu viverra dis retium sed sit lobortis.
-                                                    </p>
-
-                                                    <h5>Language</h5>
-                                                    <p>English, German</p>
-                                                </div>
-                                                <div className="modal-ftr-bttn">
-                                                    <button type="reset" className="btn btn-reject">Reject</button>
-                                                    <button type="reset" className="btn btn-accept">Accept</button>
-                                                </div>
-                                            </div>
-                                            <div className="tab-pane fade" id="pills-profiles" role="tabpanel" aria-labelledby="pills-profiles-tab" tabIndex="0">
-                                                <div className="modal-tab-txt-wrap">
-                                                    <h5>Documents</h5>
-                                                </div>
-
-                                                <div className="modal-post-height-fixed">
-                                                    <div className="row">
-                                                        <div className="col-md-4">
-                                                            <div className="modal-post-box">
-                                                                <img src="./assets/images/document-01.png" alt="Post" className="img-fluid" />
-                                                                <span>ID</span>
-                                                            </div>
-                                                        </div>
-                                                        <div className="col-md-4">
-                                                            <div className="modal-post-box">
-                                                                <img src="./assets/images/document-02.png" alt="Post" className="img-fluid" />
-                                                                <span>DEGREE</span>
-                                                            </div>
-                                                        </div>
-                                                        <div className="col-md-4">
-                                                            <div className="modal-post-box">
-                                                                <img src="./assets/images/post-01.png" alt="Post" className="img-fluid" />
-                                                                <span>23 nov 2022, 14:03</span>
-                                                            </div>
-                                                        </div>
-                                                        <div className="col-md-4">
-                                                            <div className="modal-post-box">
-                                                                <img src="./assets/images/post-01.png" alt="Post" className="img-fluid" />
-                                                                <span>23 nov 2022, 14:03</span>
-                                                            </div>
-                                                        </div>
-                                                        <div className="col-md-4">
-                                                            <div className="modal-post-box">
-                                                                <img src="./assets/images/post-01.png" alt="Post" className="img-fluid" />
-                                                                <span>23 nov 2022, 14:03</span>
-                                                            </div>
-                                                        </div>
-                                                        <div className="col-md-4">
-                                                            <div className="modal-post-box">
-                                                                <img src="./assets/images/post-01.png" alt="Post" className="img-fluid" />
-                                                                <span>23 nov 2022, 14:03</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div className="modal-ftr-bttn">
-                                                    <button type="reset" className="btn btn-reject">Reject</button>
-                                                    <button type="reset" className="btn btn-accept">Accept</button>
-                                                </div>
-
-                                            </div>
-                                        </div> */}
-
                                     </div>
                                 }
                             </div>
