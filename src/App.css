@@ -1447,3 +1447,13 @@ button:focus-within {
     border-top-left-radius: 28px;
     border-top-right-radius: 28px;
 }
+
+.mentor-subject {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.mentor-subject > img {
+    border-radius: 8px;
+}

@@ -8,13 +8,9 @@ import { Toast, ToastContainer } from 'react-bootstrap';
 
 
 const Modal = (props) => {
-    console.log(props, "mm");
     const token = localStorage.getItem("token");
     const [show, setShow] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
-
-
-    // console.log(props.id, "modal component");
 
     const response = useFetch({
         request: "/admin/userDetails",
@@ -53,8 +49,6 @@ const Modal = (props) => {
                 alert("Something went wrong")
             })
     }
-
-    // console.log(response.loading, response.error, "res modal");
 
     return (
         <>
@@ -137,11 +131,14 @@ const Modal = (props) => {
                                                     {
                                                         response?.data?.mentoringSubject && <>
                                                             <h5>Mentoring Subjects</h5>
-                                                            {
-                                                                response?.data?.mentoringSubject?.map((el, index) =>
-                                                                    <img key={index} src={el?.mentoringIcon} alt={el?.mentoringIcon} className="img-fluid" />
-                                                                )
-                                                            }
+                                                            <div className='mentor-subject'>
+                                                                {
+                                                                    response?.data?.mentoringSubject?.map((el, index) =>
+                                                                        <img key={index} src={el?.mentoringIcon} alt={el?.mentoringIcon} className="img-fluid" />
+                                                                    )
+                                                                }
+                                                            </div>
+
                                                         </>
                                                     }
                                                     <h5>About</h5>
