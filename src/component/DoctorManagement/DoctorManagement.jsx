@@ -88,7 +88,7 @@ const DoctorManagement = () => {
   };
 
   const onSearchHandler = (e) => {
-    let searchResutl = (filterFlag ? filterQueryData : response.data.doctors).filter((list) => {
+    let searchResutl = ( filterFlag || (!filterFlag && searchFlag) ? filterQueryData : response.data.doctors).filter((list) => {
       if (list?.firstName?.includes(e.target.value) || list?.lastName?.includes(e.target.value)) {
         return list
       }
@@ -106,6 +106,7 @@ const DoctorManagement = () => {
 
   const filterClickListener = () => {
     if (Object.keys(filterObj).length === 0) {
+      setSearchFlag(false);
       setfilterFlag(false);
       return;
     }
@@ -160,6 +161,8 @@ const DoctorManagement = () => {
     });
 
     setfilterQueryData(filterResult);
+    // console.log(filterResult, "fff resutl");
+    setSearchFlag(false);
     setfilterFlag(true);
   };
 
