@@ -83,12 +83,17 @@ const DoctorManagement = () => {
   };
 
   const inputFilterHandler = (key, e) => {
+    if (!e.target.value) {
+      delete filterObj[key];
+      return;
+    }
     filterObj[key] = e.target.value;
     // console.log(filterObj, "input");
   };
 
   const onSearchHandler = (e) => {
-    let searchResutl = ( filterFlag || (!filterFlag && searchFlag) ? filterQueryData : response.data.doctors).filter((list) => {
+    // let searchResutl = ( filterFlag || (!filterFlag && searchFlag) ? filterQueryData : response.data.doctors).filter((list) => {
+    let searchResutl = (filterFlag ? filterQueryData : response.data.doctors).filter((list) => {
       if (list?.firstName?.includes(e.target.value) || list?.lastName?.includes(e.target.value)) {
         return list
       }
@@ -142,7 +147,7 @@ const DoctorManagement = () => {
       if (filterObj?.ratingAny && parseInt(list.averageRating) >= filterObj?.ratingAny?.split("-")[0] && parseInt(list.averageRating) <= filterObj?.ratingAny?.split("-")[1]) {
         return list;
       }
-      if (filterObj?.ratingOn && Math.round(list.averageRating) === parseInt(filterObj?.ratingOne?.split("-")[0])) {
+      if (filterObj?.ratingOne && Math.round(list.averageRating) === parseInt(filterObj?.ratingOne?.split("-")[0])) {
         return list;
       }
       if (filterObj?.ratingTwo && Math.round(list.averageRating) === parseInt(filterObj?.ratingTwo?.split("-")[0])) {

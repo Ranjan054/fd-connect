@@ -20,7 +20,7 @@ const ChangePassword = () => {
   }
 
   const omSubmitHandler = () => {
-    console.log(formField)
+    // console.log(formField)
     // axios.post(`${BASE_URL}/admin/login`, {
     //   ...formField,
     // })

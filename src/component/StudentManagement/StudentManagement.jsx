@@ -4,6 +4,8 @@ import { status } from '../../utils/type-util';
 import Modal from '../Modal/Modal';
 import Spinner from '../Spinner/Spinner';
 
+let filterObj = {};
+
 const StudentManagement = () => {
 
   const tabData = [
@@ -32,6 +34,10 @@ const StudentManagement = () => {
   const [showTab, setShowTab] = useState("pills-home");
   const [filterList, setFilterList] = useState([]);
   const [flag, setFlag] = useState(false);
+  const [filterFlag, setfilterFlag] = useState(false);
+  const [filterQueryData, setfilterQueryData] = useState([]);
+  const [searchFlag, setSearchFlag] = useState(false);
+  const [searchData, setSearchyData] = useState([]);
   // const [loading, setLoading] = useState(false);
   const [show, setShow] = useState(false);
   const [id, setId] = useState("");
@@ -50,13 +56,11 @@ const StudentManagement = () => {
       // setLoading(false);
       return;
     }
-    let result = response?.data?.students.filter((list) => status(list.isApproved) === tab);
+    let result = (filterFlag ? filterQueryData : searchFlag ? searchData : response.data.students).filter((list) => status(list.isApproved) === tab);
     setFilterList(result);
     setFlag(true);
     setShowTab(ctr);
   }
-
-  console.log(response, "res student");
 
   const openModalHandler = (id, tabStatus) => {
     setId(id);
@@ -67,6 +71,108 @@ const StudentManagement = () => {
   const closeModalHandler = () => {
     setShow(false);
   }
+
+  const subjectCheckboxHandler = (key, value) => {
+    if (filterObj[key]) {
+      delete filterObj[key]
+    } else {
+      filterObj[key] = value;
+    }
+    // console.log(filterObj, "fff");
+  };
+
+  const inputFilterHandler = (key, e) => {
+    if (!e.target.value) {
+      delete filterObj[key];
+      return;
+    }
+    filterObj[key] = e.target.value;
+    // console.log(filterObj, "input");
+  };
+
+  const onSearchHandler = (e) => {
+    let searchResutl = ( filterFlag ? filterQueryData : response.data.students).filter((list) => {
+      if (list?.firstName?.includes(e.target.value) || list?.lastName?.includes(e.target.value)) {
+        return list
+      }
+    });
+    setSearchyData(searchResutl);
+    setfilterFlag(false);
+    setSearchFlag(true);
+    // console.log("search worke", e.target.value, searchResutl);
+  };
+
+  const userTypeHandler = (key, value) => {
+    filterObj[key] = value;
+    // console.log(filterObj, "type");
+  };
+
+  const filterClickListener = () => {
+    if (Object.keys(filterObj).length === 0) {
+      setSearchFlag(false);
+      setfilterFlag(false);
+      return;
+    }
+    // console.log(filterObj, "out");
+    let filterResult = response?.data?.students.filter((list) => {
+      if (filterObj?.userType && (filterObj?.userType === "all" || filterObj?.userType === list?.userType)) {
+        return list;
+      }
+      if (filterObj?.userType && filterObj?.userType === list?.userType) {
+        return list;
+      }
+      if (filterObj?.inputSearch && list.studyBranch && list.studyBranch?.toLowerCase() === filterObj?.inputSearch?.toLowerCase()) {
+        return list;
+      }
+      if (filterObj?.preClinical && list.studyBranch && list.studyBranch?.toLowerCase() === filterObj?.preClinical?.toLowerCase()) {
+        return list;
+      }
+      if (filterObj?.clinical && list.studyBranch && list.studyBranch?.toLowerCase() === filterObj?.clinical?.toLowerCase()) {
+        return list;
+      }
+      if (filterObj?.allergy && list.studyBranch && list.studyBranch?.toLowerCase() === filterObj?.allergy?.toLowerCase()) {
+        return list;
+      }
+      if (filterObj?.dermatology && list.studyBranch && list.studyBranch?.toLowerCase() === filterObj?.dermatology?.toLowerCase()) {
+        return list;
+      }
+      if (filterObj?.emergency && list.studyBranch && list.studyBranch?.toLowerCase() === filterObj?.emergency?.toLowerCase()) {
+        return list;
+      }
+      if (filterObj?.internal && list.studyBranch && list.studyBranch?.toLowerCase() === filterObj?.internal?.toLowerCase()) {
+        return list;
+      }
+      if (filterObj?.medical && list.studyBranch && list.studyBranch?.toLowerCase() === filterObj?.medical?.toLowerCase()) {
+        return list;
+      }
+      if (list?.userType === (3 || 2)) {
+        if (filterObj?.ratingAny && parseInt(list.averageRating) >= filterObj?.ratingAny?.split("-")[0] && parseInt(list.averageRating) <= filterObj?.ratingAny?.split("-")[1]) {
+          return list;
+        }
+        if (filterObj?.ratingOne && Math.round(list.averageRating) === parseInt(filterObj?.ratingOne?.split("-")[0])) {
+          return list;
+        }
+        if (filterObj?.ratingTwo && Math.round(list.averageRating) === parseInt(filterObj?.ratingTwo?.split("-")[0])) {
+          return list;
+        }
+        if (filterObj?.ratingThree && Math.round(list.averageRating) === parseInt(filterObj?.ratingThree?.split("-")[0])) {
+          return list;
+        }
+        if (filterObj?.ratingFour && Math.round(list.averageRating) === parseInt(filterObj?.ratingFour?.split("-")[0])) {
+          return list;
+        }
+        if (filterObj?.ratingFive && Math.round(list.averageRating) === parseInt(filterObj?.ratingFive?.split("-")[0])) {
+          return list;
+        }
+      }
+
+    });
+
+    setfilterQueryData(filterResult);
+    // console.log(filterResult, "fff resutl");
+    setSearchFlag(false);
+    setfilterFlag(true);
+  };
 
   if (response?.loading) return <Spinner />
 
@@ -95,7 +201,7 @@ const StudentManagement = () => {
           <div className="management-head-search-wrap">
             <form action="">
               <i className="fas fa-search"></i>
-              <input type="text" placeholder="Search ..." className="form-control" />
+              <input onChange={(e) => onSearchHandler(e)} type="text" placeholder="Search ..." className="form-control" />
             </form>
           </div>
         </div>
@@ -106,7 +212,8 @@ const StudentManagement = () => {
               <div className="tab-content p-5 pe-2" id="pills-tabContent">
                 <div className="tab-pane fade show active" id={showTab + "-tab"} role="tabpanel" aria-labelledby={showTab} tabIndex="0">
                   {
-                    response?.data?.students && (flag ? filterList : response.data.students).map((el) =>
+                    response?.data?.students &&
+                    (flag ? filterList : filterFlag ? filterQueryData : searchFlag ? searchData : response.data.students).map((el) =>
                       <div key={el?.id} className={`doctor-manage-list-wrap status-${status(el?.isApproved).toLowerCase()}`}>
                         <div className="media">
                           <img src={el?.profilePicture} alt={el?.firstName} className="img-fluid profile-img" />
@@ -138,20 +245,20 @@ const StudentManagement = () => {
                 <div className="rightbar-experience-filter-wrap py-4" style={{ background: "#FAFAFA" }}>
                   <h4 className="ps-0">Student Type</h4>
                   <div className="form-check">
-                    <input className="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" />
-                    <label className="form-check-label custom-weight" htmlFor="flexRadioDefault1">
+                    <input onClick={() => userTypeHandler("userType", "all")} className="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" />
+                    <label className="form-check-label">
                       Any
                     </label>
                   </div>
                   <div className="form-check">
-                    <input className="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault12" />
-                    <label className="form-check-label " htmlFor="flexRadioDefault12">
+                    <input onClick={() => userTypeHandler("userType", 1)} className="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault12" />
+                    <label className="form-check-label">
                       Only Student
                     </label>
                   </div>
                   <div className="form-check">
-                    <input className="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault14" />
-                    <label className="form-check-label " htmlFor="flexRadioDefault14">
+                    <input onClick={() => userTypeHandler("userType", 3)} className="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault14" />
+                    <label className="form-check-label">
                       Mentor
                     </label>
                   </div>
@@ -164,58 +271,58 @@ const StudentManagement = () => {
                   <div className="row">
                     <div className="col-7">
                       <div className="form-check border-0">
-                        <input className="form-check-input" type="checkbox" value="" id="flexCheckDefaulta" defaultChecked />
-                        <label className="form-check-label custom-weight" htmlFor="flexCheckDefaulta">
+                        <input onClick={() => subjectCheckboxHandler("preClinical", "Pre-Clinical")} className="form-check-input" type="checkbox" value="" id="flexCheckDefaulta" />
+                        <label className="form-check-label">
                           Pre-Clinical
                         </label>
                       </div>
                     </div>
                     <div className="col-5">
                       <div className="form-check border-0">
-                        <input className="form-check-input" type="checkbox" value="" id="flexCheckDefaults" />
-                        <label className="form-check-label" htmlFor="flexCheckDefaults">
+                        <input onClick={() => subjectCheckboxHandler("clinical", "Clinical")} className="form-check-input" type="checkbox" value="" id="flexCheckDefaults" />
+                        <label className="form-check-label">
                           Clinical
                         </label>
                       </div>
                     </div>
                     <div className="col-12">
-                      <input type="text" className="form-control" placeholder="Enter subject name...." style={{ background: "rgba(244, 244, 244, 0.7", borderRadius: "7px", height: "34px" }} />
+                      <input onChange={(e) => inputFilterHandler("inputSearch", e)} type="text" className="form-control" placeholder="Enter subject name...." style={{ background: "rgba(244, 244, 244, 0.7", borderRadius: "7px", height: "34px" }} />
                     </div>
                   </div>
 
                   <div className="form-check">
-                    <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault" defaultChecked />
-                    <label className="form-check-label custom-weight" htmlFor="flexCheckDefault">
+                    <input onClick={() => subjectCheckboxHandler("allergy", "Allergy and Immunology")} className="form-check-input" type="checkbox" value="" id="flexCheckDefault" />
+                    <label className="form-check-label">
                       Allergy and Immunology
                     </label>
                   </div>
                   <div className="form-check">
-                    <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault1" />
-                    <label className="form-check-label" htmlFor="flexCheckDefault1">
+                    <input onClick={() => subjectCheckboxHandler("anesthesiology", "Anesthesiology")} className="form-check-input" type="checkbox" value="" id="flexCheckDefault1" />
+                    <label className="form-check-label">
                       Anesthesiology
                     </label>
                   </div>
                   <div className="form-check">
-                    <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault2" defaultChecked />
-                    <label className="form-check-label custom-weight" htmlFor="flexCheckDefault2">
+                    <input onClick={() => subjectCheckboxHandler("dermatology", "Dermatology")} className="form-check-input" type="checkbox" value="" id="flexCheckDefault2" />
+                    <label className="form-check-label">
                       Dermatology
                     </label>
                   </div>
                   <div className="form-check">
-                    <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault3" />
-                    <label className="form-check-label" htmlFor="flexCheckDefault3">
+                    <input onClick={() => subjectCheckboxHandler("emergency", "Emergency medicine")} className="form-check-input" type="checkbox" value="" id="flexCheckDefault3" />
+                    <label className="form-check-label">
                       Emergency medicine
                     </label>
                   </div>
                   <div className="form-check">
-                    <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault4" />
-                    <label className="form-check-label" htmlFor="flexCheckDefault4">
+                    <input onClick={() => subjectCheckboxHandler("internal", "Internal medicine")} className="form-check-input" type="checkbox" value="" id="flexCheckDefault4" />
+                    <label className="form-check-label">
                       Internal medicine
                     </label>
                   </div>
                   <div className="form-check">
-                    <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault5" />
-                    <label className="form-check-label" htmlFor="flexCheckDefault5">
+                    <input onClick={() => subjectCheckboxHandler("medical", "Medical Genetics")} className="form-check-input" type="checkbox" value="" id="flexCheckDefault5" />
+                    <label className="form-check-label">
                       Medical Genetics
                     </label>
                   </div>
@@ -229,22 +336,22 @@ const StudentManagement = () => {
                     only applied to student who are enrolled as mentors</span>
 
                   <div className="form-check">
-                    <input className="form-check-input" type="checkbox" name="flexRadioDefault" id="flexRadioDefault1t" />
-                    <label className="form-check-label custom-weight" htmlFor="flexRadioDefault1t">
+                    <input onClick={() => subjectCheckboxHandler("ratingAny", "0-5")} className="form-check-input" type="checkbox" name="flexRadioDefault" id="flexRadioDefault1t" />
+                    <label className="form-check-label">
                       Any
                     </label>
                   </div>
                   <div className="form-check">
-                    <input className="form-check-input" type="checkbox" name="flexRadioDefault" id="flexRadioDefault1ts" />
-                    <label className="form-check-label" htmlFor="flexRadioDefault1ts">
+                    <input onClick={() => subjectCheckboxHandler("ratingOne", "1-1")} className="form-check-input" type="checkbox" name="flexRadioDefault" id="flexRadioDefault1ts" />
+                    <label className="form-check-label">
                       <ul>
                         <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
                       </ul>
                     </label>
                   </div>
                   <div className="form-check">
-                    <input className="form-check-input" type="checkbox" name="flexRadioDefault" id="flexRadioDefault1tsa" />
-                    <label className="form-check-label" htmlFor="flexRadioDefault1tsa">
+                    <input onClick={() => subjectCheckboxHandler("ratingTwo", "2-2")} className="form-check-input" type="checkbox" name="flexRadioDefault" id="flexRadioDefault1tsa" />
+                    <label className="form-check-label">
                       <ul>
                         <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
                         <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
@@ -252,22 +359,9 @@ const StudentManagement = () => {
                     </label>
                   </div>
                   <div className="form-check">
-                    <input className="form-check-input" type="checkbox" name="flexRadioDefault"
-                      id="flexRadioDefault1tsa1" />
-                    <label className="form-check-label" htmlFor="flexRadioDefault1tsa1">
+                    <input onClick={() => subjectCheckboxHandler("ratingThree", "3-3")} className="form-check-input" type="checkbox" name="flexRadioDefault" id="flexRadioDefault1tsa1" />
+                    <label className="form-check-label">
                       <ul>
-                        <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
-                        <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
-                        <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
-                      </ul>
-                    </label>
-                  </div>
-                  <div className="form-check">
-                    <input className="form-check-input" type="checkbox" name="flexRadioDefault"
-                      id="flexRadioDefault1tsa1q" />
-                    <label className="form-check-label" htmlFor="flexRadioDefault1tsa1q">
-                      <ul>
-                        <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
                         <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
                         <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
                         <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
@@ -275,9 +369,19 @@ const StudentManagement = () => {
                     </label>
                   </div>
                   <div className="form-check">
-                    <input className="form-check-input" type="checkbox" name="flexRadioDefault"
-                      id="flexRadioDefault1tsa1qs" />
-                    <label className="form-check-label" htmlFor="flexRadioDefault1tsa1qs">
+                    <input onClick={() => subjectCheckboxHandler("ratingFour", "4-4")} className="form-check-input" type="checkbox" name="flexRadioDefault" id="flexRadioDefault1tsa1q" />
+                    <label className="form-check-label">
+                      <ul>
+                        <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
+                        <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
+                        <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
+                        <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
+                      </ul>
+                    </label>
+                  </div>
+                  <div className="form-check">
+                    <input onClick={() => subjectCheckboxHandler("ratingFive", "5-5")} className="form-check-input" type="checkbox" name="flexRadioDefault" id="flexRadioDefault1tsa1qs" />
+                    <label className="form-check-label">
                       <ul>
                         <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
                         <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
@@ -290,7 +394,7 @@ const StudentManagement = () => {
 
                 </div>
                 <div className="rightbar-filter-bttn">
-                  <a href="#">Apply</a>
+                  <a href="#" onClick={() => filterClickListener()}>Apply</a>
                 </div>
               </div>
             </div>
@@ -299,7 +403,7 @@ const StudentManagement = () => {
       </div>
 
       {
-        <Modal student={true} id={id} isPending={isPending} show={show} closeModal={closeModalHandler} />
+        <Modal id={id} isPending={isPending} show={show} closeModal={closeModalHandler} />
       }
     </>
   )

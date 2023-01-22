@@ -104,22 +104,32 @@ const Modal = (props) => {
                                                             {
                                                                 props?.doctor ? <>
                                                                     <h5>Doctor</h5>
-                                                                    <h5>Position</h5>
-                                                                </> : props?.student ? <h5>Student</h5> : <h5>Mentor</h5>
+                                                                    <h5 style={{marginTop: "3px"}}>Position</h5>
+                                                                </> : response?.data.userType === 1 ? <h5>Student</h5> : <h5>Student (Mentor)</h5>
                                                             }
-                                                            <p>{response?.data?.specializationSubject}</p>
-                                                            <p>{response?.data?.currentPlaceOfWork}</p>
-                                                            {/* <p>{response?.data?.university}, ({response?.data?.semester})</p> */}
-                                                            {/* <p>Studying <strong>Cardiology</strong></p> */}
-
-                                                            <h5>Study</h5>
-                                                            <p>{response?.data?.studyBranch}</p>
-                                                            <p>{response?.data?.university}</p>
+                                                            {
+                                                                props?.doctor ? <>
+                                                                    <p>{response?.data?.specializationSubject}</p>
+                                                                    <p>{response?.data?.currentPlaceOfWork}</p>
+                                                                </> : <>
+                                                                    <p>{response?.data?.university}, ({response?.data?.semester})</p>
+                                                                    <p>Studying <strong>{response?.data?.studyBranch}</strong></p>
+                                                                </>
+                                                            }
+                                                            {
+                                                                props?.doctor && <>
+                                                                    <h5>Study</h5>
+                                                                    <p>{response?.data?.studyBranch}</p>
+                                                                    <p>{response?.data?.university}</p>
+                                                                </>
+                                                            }
 
                                                             <h5>Contact</h5>
                                                             <p>{response?.data?.phoneNumber}</p>
                                                             <a href={response?.data?.email}>{response?.data?.email}</a>
+
                                                         </div>
+
                                                         <div className="col-lg-6">
                                                             <div className="modal-profile-box">
                                                                 <img src={response?.data?.profilePicture} alt={response?.data?.profilePicture} className="img-fluid modal-img" />
@@ -129,8 +139,10 @@ const Modal = (props) => {
                                                         </div>
                                                     </div>
                                                     {
-                                                        response?.data?.mentoringSubject && <>
-                                                            <h5>Mentoring Subjects</h5>
+                                                        response?.data?.userType !== 1 && response?.data?.mentoringSubject.length !==0 && <>
+                                                            {
+                                                                props?.doctor ? <h5>Area of Expertise</h5> : <h5>Mentoring Subjects</h5>
+                                                            }
                                                             <div className='mentor-subject'>
                                                                 {
                                                                     response?.data?.mentoringSubject?.map((el, index) =>
@@ -150,7 +162,6 @@ const Modal = (props) => {
                                                             </p>
                                                         </>
                                                     }
-
                                                     {
                                                         response?.data?.language && <h5 > Language</h5>
                                                     }
@@ -171,29 +182,34 @@ const Modal = (props) => {
 
                                             </div>
                                             <div className="tab-pane fade" id="pills-profiles" role="tabpanel" aria-labelledby="pills-profiles-tab" tabIndex="0">
-                                                <div className="modal-tab-txt-wrap">
-                                                    <h5>Documents</h5>
-                                                </div>
-                                                <div className="modal-post-height-fixed">
-                                                    <div className="row">
-                                                        {
-                                                            response?.data?.document?.map((el, index) =>
-                                                                <div key={index} className="col-md-4">
-                                                                    <div className="modal-post-box">
-                                                                        <img src={el?.fileUrl} alt={el?.fileName} className="img-fluid doc-img" />
-                                                                        <span>{el?.fileName}</span>
-                                                                    </div>
-                                                                </div>
-                                                            )
-                                                        }
-                                                    </div>
-                                                </div>
+                                                {
+                                                    response?.data?.document?.length ? <>
+                                                        <div className="modal-tab-txt-wrap">
+                                                            <h5>Documents</h5>
+                                                        </div>
+                                                        <div className="modal-post-height-fixed">
+                                                            <div className="row">
+                                                                {
+                                                                    response?.data?.document?.map((el, index) =>
+                                                                        <div key={index} className="col-md-4">
+                                                                            <div className="modal-post-box">
+                                                                                <img src={el?.fileUrl} alt={el?.fileName} className="img-fluid doc-img" />
+                                                                                <span>{el?.fileName}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    )
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    </> : <h2>No Data</h2>
+                                                }
+
                                                 {/* {
                                                     response?.data?.posts && <div className="modal-tab-txt-wrap">
                                                         <h5>Posts</h5>
                                                     </div>
                                                 } */}
-                                                <div className="modal-post-height-fixed">
+                                                {/* <div className="modal-post-height-fixed">
                                                     <div className="row">
                                                         {
                                                             response?.data?.posts && response?.data?.posts?.map((el, index) =>
@@ -206,7 +222,7 @@ const Modal = (props) => {
                                                             )
                                                         }
                                                     </div>
-                                                </div>
+                                                </div> */}
                                                 {
                                                     props?.isPending === 2 && <div className="modal-ftr-bttn">
                                                         <button onClick={() => getApproveHandler("reject")} className="btn btn-reject">Reject</button>

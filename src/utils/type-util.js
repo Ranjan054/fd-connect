@@ -19,3 +19,13 @@ export const classStatus = (params) => {
     }
     return obj[params];
 }
+
+export const userType = (params) => {
+    let obj = {
+        1: "Student",
+        2: "Mentor",
+        3: "Mentor Student"
+    }
+    return obj[params];
+}
+
