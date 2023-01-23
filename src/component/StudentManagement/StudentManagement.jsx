@@ -91,7 +91,7 @@ const StudentManagement = () => {
   };
 
   const onSearchHandler = (e) => {
-    let searchResutl = ( filterFlag ? filterQueryData : response.data.students).filter((list) => {
+    let searchResutl = (filterFlag ? filterQueryData : response.data.students).filter((list) => {
       if (list?.firstName?.includes(e.target.value) || list?.lastName?.includes(e.target.value)) {
         return list
       }
@@ -145,7 +145,7 @@ const StudentManagement = () => {
       if (filterObj?.medical && list.studyBranch && list.studyBranch?.toLowerCase() === filterObj?.medical?.toLowerCase()) {
         return list;
       }
-      if (list?.userType === (3 || 2)) {
+      if (list?.userType === 3 || list?.userType === 2) {
         if (filterObj?.ratingAny && parseInt(list.averageRating) >= filterObj?.ratingAny?.split("-")[0] && parseInt(list.averageRating) <= filterObj?.ratingAny?.split("-")[1]) {
           return list;
         }
@@ -220,13 +220,15 @@ const StudentManagement = () => {
                           <div className="media-body">
                             <h5>{el?.firstName} {el?.lastName}</h5>
                             <h6>Specialist of {el?.specializationSubject}</h6>
-                            <ul>
-                              {
-                                [...Array(Math.round(el?.averageRating))].map((e, i) =>
-                                  <li key={i}><i className="fas fa-star"></i></li>)
-                              }
-                              <li><span> {Math.round(el?.averageRating)} <div className="text-dark d-inline">({el?.totalRating})</div></span></li>
-                            </ul>
+                            {
+                              el?.userType === 3 && <ul>
+                                {
+                                  [...Array(Math.round(el?.averageRating))].map((e, i) =>
+                                    <li key={i}><i className="fas fa-star"></i></li>)
+                                }
+                                <li><span> {Math.round(el?.averageRating)} <div className="text-dark d-inline">({el?.totalRating})</div></span></li>
+                              </ul>
+                            }
                           </div>
                         </div>
                         <div className="doctor-status-wrap">

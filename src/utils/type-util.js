@@ -1,8 +1,8 @@
 export const status = (params) => {
     let obj = {
-        0: "Rejected",
+        0: "Pending",
         1: "Approved",
-        2: "Pending"
+        2: "Rejected"
     }
     return obj[params];
 }

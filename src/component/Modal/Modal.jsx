@@ -112,7 +112,7 @@ const Modal = (props) => {
                                                                     <p>{response?.data?.specializationSubject}</p>
                                                                     <p>{response?.data?.currentPlaceOfWork}</p>
                                                                 </> : <>
-                                                                    <p>{response?.data?.university}, ({response?.data?.semester})</p>
+                                                                    <p>{response?.data?.university}, {response?.data?.semester ? `(${response?.data?.semester})` : ""}</p>
                                                                     <p>Studying <strong>{response?.data?.studyBranch}</strong></p>
                                                                 </>
                                                             }
@@ -174,7 +174,7 @@ const Modal = (props) => {
                                                     }
                                                 </div>
                                                 {
-                                                    props?.isPending === 2 && <div className="modal-ftr-bttn">
+                                                    props?.isPending === 0 && <div className="modal-ftr-bttn">
                                                         <button onClick={() => getApproveHandler("reject")} className="btn btn-reject">Reject</button>
                                                         <button onClick={() => getApproveHandler("accept")} className="btn btn-accept">Accept</button>
                                                     </div>
@@ -224,7 +224,7 @@ const Modal = (props) => {
                                                     </div>
                                                 </div> */}
                                                 {
-                                                    props?.isPending === 2 && <div className="modal-ftr-bttn">
+                                                    props?.isPending === 0 && <div className="modal-ftr-bttn">
                                                         <button onClick={() => getApproveHandler("reject")} className="btn btn-reject">Reject</button>
                                                         <button onClick={() => getApproveHandler("accept")} className="btn btn-accept">Accept</button>
                                                     </div>
