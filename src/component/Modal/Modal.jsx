@@ -87,6 +87,16 @@ const Modal = (props) => {
                                 {
                                     !response?.loading && !response?.error && Object.keys(response).length !== 0 &&
                                     <div className="modal-tab-wrap">
+
+                                        <div className='row justify-content-center'>
+                                            <div className="col-lg-6">
+                                                <div className="modal-profile-box">
+                                                    <img src={response?.data?.profilePicture} alt={response?.data?.profilePicture} className="img-fluid modal-img" />
+                                                    <h5>{response?.data?.firstName}</h5>
+                                                    <h6>{response?.data?.country}</h6>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <ul className="nav nav-pills mb-3" id="pills-tab" role="tablist">
                                             <li className="nav-item" role="presentation">
                                                 <button className="nav-link active" id="pills-homes-tab" data-bs-toggle="pill" data-bs-target="#pills-homes" type="button" role="tab" aria-controls="pills-homes" aria-selected="true">Profile</button>
@@ -104,7 +114,7 @@ const Modal = (props) => {
                                                             {
                                                                 props?.doctor ? <>
                                                                     <h5>Doctor</h5>
-                                                                    <h5 style={{marginTop: "3px"}}>Position</h5>
+                                                                    <h5 style={{ marginTop: "3px" }}>Position</h5>
                                                                 </> : response?.data.userType === 1 ? <h5>Student</h5> : <h5>Student (Mentor)</h5>
                                                             }
                                                             {
@@ -130,16 +140,16 @@ const Modal = (props) => {
 
                                                         </div>
 
-                                                        <div className="col-lg-6">
+                                                        {/* <div className="col-lg-6">
                                                             <div className="modal-profile-box">
                                                                 <img src={response?.data?.profilePicture} alt={response?.data?.profilePicture} className="img-fluid modal-img" />
                                                                 <h5>{response?.data?.firstName}</h5>
                                                                 <h6>{response?.data?.country}</h6>
                                                             </div>
-                                                        </div>
+                                                        </div> */}
                                                     </div>
                                                     {
-                                                        response?.data?.userType !== 1 && response?.data?.mentoringSubject.length !==0 && <>
+                                                        response?.data?.userType !== 1 && response?.data?.mentoringSubject.length !== 0 && <>
                                                             {
                                                                 props?.doctor ? <h5>Area of Expertise</h5> : <h5>Mentoring Subjects</h5>
                                                             }

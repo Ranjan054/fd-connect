@@ -26,7 +26,7 @@ const Dashboard = () => {
           <div className="home-header-wrap">
             <h4>Doctors</h4>
             <div className="row">
-              <div className="col-md-5 col-lg-4">
+              <div className="col-md-6 col-lg-5">
                 <div className="doctor-head-bg">
                   {/* <h1>2743 </h1> */}
                   <h1>{response?.data?.totalApprovedDoctors}</h1>

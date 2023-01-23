@@ -4,6 +4,8 @@ import { useFetch } from '../../hooks/useFetch';
 import { classStatus } from '../../utils/type-util';
 import Spinner from '../Spinner/Spinner';
 
+let filterObj = {};
+
 const ClassManagement = () => {
 
   const tabData = [
@@ -38,6 +40,14 @@ const ClassManagement = () => {
   const [showTab, setShowTab] = useState("pills-home");
   const [filterList, setFilterList] = useState([]);
   const [flag, setFlag] = useState(false);
+  const [filterFlag, setfilterFlag] = useState(false);
+  const [filterQueryData, setfilterQueryData] = useState([]);
+  const [searchFlag, setSearchFlag] = useState(false);
+  const [searchData, setSearchyData] = useState([]);
+  // const [loading, setLoading] = useState(false);
+  const [show, setShow] = useState(false);
+  const [id, setId] = useState("");
+
 
   const response = useFetch({
     request: "/admin/bookedClasses",
@@ -51,11 +61,113 @@ const ClassManagement = () => {
       // setLoading(false);
       return;
     }
-    let result = response?.data?.list.filter((item) => classStatus(item.classStatus) === tab);
+    let result = (filterFlag ? filterQueryData : searchFlag ? searchData : response.data.list).filter((item) => classStatus(item.classStatus) === tab);
     setFilterList(result);
     setFlag(true);
     setShowTab(ctr);
   }
+
+  const subjectCheckboxHandler = (key, value) => {
+    if (filterObj[key]) {
+      delete filterObj[key]
+    } else {
+      filterObj[key] = value;
+    }
+    // console.log(filterObj, "fff");
+  };
+
+  const inputFilterHandler = (key, e) => {
+    if (!e.target.value) {
+      delete filterObj[key];
+      return;
+    }
+    filterObj[key] = e.target.value;
+    // console.log(filterObj, "input");
+  };
+
+  const onSearchHandler = (e) => {
+    let searchResutl = (filterFlag ? filterQueryData : response.data.list).filter((list) => {
+      if (list?.mentorDetails[0]?.mentorFirstName?.includes(e.target.value) || list?.studentDetails[0]?.studentFirstName?.includes(e.target.value)) {
+        return list
+      }
+    });
+    setSearchyData(searchResutl);
+    setfilterFlag(false);
+    setSearchFlag(true);
+    // console.log("search worke", e.target.value, searchResutl);
+  };
+
+  const userTypeHandler = (key, value) => {
+    filterObj[key] = value;
+    // console.log(filterObj, "type");
+  };
+
+  const filterClickListener = () => {
+    if (Object.keys(filterObj).length === 0) {
+      setSearchFlag(false);
+      setfilterFlag(false);
+      return;
+    }
+    // console.log(filterObj, "out");
+    let filterResult = response?.data?.list.filter((list) => {
+      if (filterObj?.userType && (filterObj?.userType === "all" || filterObj?.userType === list?.userType)) {
+        return list;
+      }
+      if (filterObj?.userType && filterObj?.userType === list?.userType) {
+        return list;
+      }
+      if (filterObj?.inputSearch && list.classSubject && list.classSubject?.toLowerCase() === filterObj?.inputSearch?.toLowerCase()) {
+        return list;
+      }
+      if (filterObj?.preClinical && list.classSubject && list.classSubject?.toLowerCase() === filterObj?.preClinical?.toLowerCase()) {
+        return list;
+      }
+      if (filterObj?.clinical && list.classSubject && list.classSubject?.toLowerCase() === filterObj?.clinical?.toLowerCase()) {
+        return list;
+      }
+      if (filterObj?.allergy && list.classSubject && list.classSubject?.toLowerCase() === filterObj?.allergy?.toLowerCase()) {
+        return list;
+      }
+      if (filterObj?.dermatology && list.classSubject && list.classSubject?.toLowerCase() === filterObj?.dermatology?.toLowerCase()) {
+        return list;
+      }
+      if (filterObj?.emergency && list.classSubject && list.classSubject?.toLowerCase() === filterObj?.emergency?.toLowerCase()) {
+        return list;
+      }
+      if (filterObj?.internal && list.classSubject && list.classSubject?.toLowerCase() === filterObj?.internal?.toLowerCase()) {
+        return list;
+      }
+      if (filterObj?.medical && list.classSubject && list.classSubject?.toLowerCase() === filterObj?.medical?.toLowerCase()) {
+        return list;
+      }
+      if (list?.userType === 3 || list?.userType === 2) {
+        if (filterObj?.ratingAny && parseInt(list.averageRating) >= filterObj?.ratingAny?.split("-")[0] && parseInt(list.averageRating) <= filterObj?.ratingAny?.split("-")[1]) {
+          return list;
+        }
+        if (filterObj?.ratingOne && Math.round(list.averageRating) === parseInt(filterObj?.ratingOne?.split("-")[0])) {
+          return list;
+        }
+        if (filterObj?.ratingTwo && Math.round(list.averageRating) === parseInt(filterObj?.ratingTwo?.split("-")[0])) {
+          return list;
+        }
+        if (filterObj?.ratingThree && Math.round(list.averageRating) === parseInt(filterObj?.ratingThree?.split("-")[0])) {
+          return list;
+        }
+        if (filterObj?.ratingFour && Math.round(list.averageRating) === parseInt(filterObj?.ratingFour?.split("-")[0])) {
+          return list;
+        }
+        if (filterObj?.ratingFive && Math.round(list.averageRating) === parseInt(filterObj?.ratingFive?.split("-")[0])) {
+          return list;
+        }
+      }
+
+    });
+
+    setfilterQueryData(filterResult);
+    // console.log(filterResult, "fff resutl");
+    setSearchFlag(false);
+    setfilterFlag(true);
+  };
 
   if (response?.loading) return <Spinner />
 
@@ -84,7 +196,7 @@ const ClassManagement = () => {
         <div className="management-head-search-wrap">
           <form action="">
             <i className="fas fa-search"></i>
-            <input type="text" placeholder="Search ..." className="form-control" />
+            <input onChange={(e) => onSearchHandler(e)} type="text" placeholder="Search ..." className="form-control" />
           </form>
         </div>
       </div>
@@ -98,7 +210,7 @@ const ClassManagement = () => {
                 {/* <!-- class single item start --> */}
 
                 {
-                  response?.data?.list && (flag ? filterList : response.data.list).map((el) =>
+                  response?.data?.list && (flag ? filterList : filterFlag ? filterQueryData : searchFlag ? searchData : response.data.list).map((el) =>
                     <div key={el?.id} className={`class-list-wrap ${classStatus(el?.classStatus)}`}>
                       <div className="row align-items-center">
                         <div className="col-md-6 col-lg-7">
@@ -121,7 +233,7 @@ const ClassManagement = () => {
                             <div className="col-md-4">
                               <div className="join-box-wrap">
                                 <h6>{el?.id}</h6>
-                                <img src={"./assets/images/"+classStatus(el?.classStatus)+".svg"} alt={classStatus(el?.classStatus)} className="img-fluid" />
+                                <img src={"./assets/images/" + classStatus(el?.classStatus) + ".svg"} alt={classStatus(el?.classStatus)} className="img-fluid" />
                                 <h4>{el?.classSubject}</h4>
                                 <p>{el?.classDuration} <i className="fas fa-circle"></i> <strong className={`text-${classStatus(el?.classStatus)}`}>{classStatus(el?.classStatus)}</strong></p>
                               </div>
@@ -170,90 +282,89 @@ const ClassManagement = () => {
           </div>
 
 
-
           <div className="col-md-4 col-lg-3">
             <div className="right-sidebar-wrap pt-0">
               <div className="rightbar-experience-filter-wrap py-4" style={{ background: "#FAFAFA" }}>
                 <h4 className="ps-0">Tutor</h4>
                 <div className="form-check">
-                  <input className="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" />
-                  <label className="form-check-label custom-weight" htmlFor="flexRadioDefault1">
+                  <input onClick={() => userTypeHandler("userType", "all")} className="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" />
+                  <label className="form-check-label">
                     Any
                   </label>
                 </div>
                 <div className="form-check">
-                  <input className="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault12" />
-                  <label className="form-check-label " htmlFor="flexRadioDefault12">
+                  <input onClick={() => userTypeHandler("userType", 2)} className="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault12" />
+                  <label className="form-check-label">
                     Doctor
                   </label>
                 </div>
                 <div className="form-check">
-                  <input className="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault14" />
-                  <label className="form-check-label " htmlFor="flexRadioDefault14">
+                  <input onClick={() => userTypeHandler("userType", 3)} className="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault14" />
+                  <label className="form-check-label">
                     Mentor
                   </label>
                 </div>
 
               </div>
 
-              <h4 className="mt-4">Branch</h4>
+              <h4 className="mt-4">Subject</h4>
               <div className="rightbar-subject-filter-wrap">
 
                 <div className="row">
                   <div className="col-7">
                     <div className="form-check border-0">
-                      <input className="form-check-input" type="checkbox" value="" id="flexCheckDefaulta" defaultChecked />
-                      <label className="form-check-label custom-weight" htmlFor="flexCheckDefaulta">
+                      <input onClick={() => subjectCheckboxHandler("preClinical", "Pre-Clinical")} className="form-check-input" type="checkbox" value="" id="flexCheckDefaulta" />
+                      <label className="form-check-label">
                         Pre-Clinical
                       </label>
                     </div>
                   </div>
                   <div className="col-5">
                     <div className="form-check border-0">
-                      <input className="form-check-input" type="checkbox" value="" id="flexCheckDefaults" />
-                      <label className="form-check-label" htmlFor="flexCheckDefaults">
+                      <input onClick={() => subjectCheckboxHandler("clinical", "Clinical")} className="form-check-input" type="checkbox" value="" id="flexCheckDefaults" />
+                      <label className="form-check-label">
                         Clinical
                       </label>
                     </div>
                   </div>
                   <div className="col-12">
-                    <input type="text" className="form-control" placeholder="Enter subject name...." style={{ background: "rgba(244, 244, 244, 0.7", borderRadius: "7px", height: "34px" }} />
+                    <input onChange={(e) => inputFilterHandler("inputSearch", e)} type="text" className="form-control" placeholder="Enter subject name...." style={{ background: "rgba(244, 244, 244, 0.7", borderRadius: "7px", height: "34px" }} />
                   </div>
                 </div>
 
                 <div className="form-check">
-                  <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault" defaultChecked />
-                  <label className="form-check-label custom-weight" htmlFor="flexCheckDefault">
+                  <input onClick={() => subjectCheckboxHandler("allergy", "Allergy and Immunology")} className="form-check-input" type="checkbox" value="" id="flexCheckDefault" />
+                  <label className="form-check-label">
                     Allergy and Immunology
                   </label>
                 </div>
                 <div className="form-check">
-                  <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault1" />
-                  <label className="form-check-label" htmlFor="flexCheckDefault1">
+                  <input onClick={() => subjectCheckboxHandler("anesthesiology", "Anesthesiology")} className="form-check-input" type="checkbox" value="" id="flexCheckDefault1" />
+                  <label className="form-check-label">
                     Anesthesiology
                   </label>
                 </div>
                 <div className="form-check">
-                  <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault2" defaultChecked />
-                  <label className="form-check-label custom-weight" htmlFor="flexCheckDefault2">
+                  <input onClick={() => subjectCheckboxHandler("dermatology", "Dermatology")} className="form-check-input" type="checkbox" value="" id="flexCheckDefault2" />
+                  <label className="form-check-label">
                     Dermatology
                   </label>
                 </div>
                 <div className="form-check">
-                  <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault3" />
-                  <label className="form-check-label" htmlFor="flexCheckDefault3">
+                  <input onClick={() => subjectCheckboxHandler("emergency", "Emergency medicine")} className="form-check-input" type="checkbox" value="" id="flexCheckDefault3" />
+                  <label className="form-check-label">
                     Emergency medicine
                   </label>
                 </div>
                 <div className="form-check">
-                  <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault4" />
-                  <label className="form-check-label" htmlFor="flexCheckDefault4">
+                  <input onClick={() => subjectCheckboxHandler("internal", "Internal medicine")} className="form-check-input" type="checkbox" value="" id="flexCheckDefault4" />
+                  <label className="form-check-label">
                     Internal medicine
                   </label>
                 </div>
                 <div className="form-check">
-                  <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault5" />
-                  <label className="form-check-label" htmlFor="flexCheckDefault5">
+                  <input onClick={() => subjectCheckboxHandler("medical", "Medical Genetics")} className="form-check-input" type="checkbox" value="" id="flexCheckDefault5" />
+                  <label className="form-check-label">
                     Medical Genetics
                   </label>
                 </div>
@@ -263,25 +374,26 @@ const ClassManagement = () => {
               <div className="rightbar-ratings-filter-wrap">
                 <h4 className="mt-4">Ratings</h4>
 
-                <span style={{ fontWeight: "400", fontSize: "10px", lineHeight: "12px", color: "#979797" }} >This filter is only applied to student who are enrolled as mentors</span>
+                <span style={{ fontWeight: "400", fontSize: "10px", lineHeight: "12px", color: "#979797" }}>This filter is
+                  only applied to student who are enrolled as mentors</span>
 
                 <div className="form-check">
-                  <input className="form-check-input" type="checkbox" name="flexRadioDefault" id="flexRadioDefault1t" />
-                  <label className="form-check-label custom-weight" htmlFor="flexRadioDefault1t">
+                  <input onClick={() => subjectCheckboxHandler("ratingAny", "0-5")} className="form-check-input" type="checkbox" name="flexRadioDefault" id="flexRadioDefault1t" />
+                  <label className="form-check-label">
                     Any
                   </label>
                 </div>
                 <div className="form-check">
-                  <input className="form-check-input" type="checkbox" name="flexRadioDefault" id="flexRadioDefault1ts" />
-                  <label className="form-check-label" htmlFor="flexRadioDefault1ts">
+                  <input onClick={() => subjectCheckboxHandler("ratingOne", "1-1")} className="form-check-input" type="checkbox" name="flexRadioDefault" id="flexRadioDefault1ts" />
+                  <label className="form-check-label">
                     <ul>
                       <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
                     </ul>
                   </label>
                 </div>
                 <div className="form-check">
-                  <input className="form-check-input" type="checkbox" name="flexRadioDefault" id="flexRadioDefault1tsa" />
-                  <label className="form-check-label" htmlFor="flexRadioDefault1tsa">
+                  <input onClick={() => subjectCheckboxHandler("ratingTwo", "2-2")} className="form-check-input" type="checkbox" name="flexRadioDefault" id="flexRadioDefault1tsa" />
+                  <label className="form-check-label">
                     <ul>
                       <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
                       <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
@@ -289,20 +401,9 @@ const ClassManagement = () => {
                   </label>
                 </div>
                 <div className="form-check">
-                  <input className="form-check-input" type="checkbox" name="flexRadioDefault" id="flexRadioDefault1tsa1" />
-                  <label className="form-check-label" htmlFor="flexRadioDefault1tsa1">
+                  <input onClick={() => subjectCheckboxHandler("ratingThree", "3-3")} className="form-check-input" type="checkbox" name="flexRadioDefault" id="flexRadioDefault1tsa1" />
+                  <label className="form-check-label">
                     <ul>
-                      <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
-                      <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
-                      <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
-                    </ul>
-                  </label>
-                </div>
-                <div className="form-check">
-                  <input className="form-check-input" type="checkbox" name="flexRadioDefault" id="flexRadioDefault1tsa1q" />
-                  <label className="form-check-label" htmlFor="flexRadioDefault1tsa1q">
-                    <ul>
-                      <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
                       <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
                       <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
                       <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
@@ -310,8 +411,19 @@ const ClassManagement = () => {
                   </label>
                 </div>
                 <div className="form-check">
-                  <input className="form-check-input" type="checkbox" name="flexRadioDefault" id="flexRadioDefault1tsa1qs" />
-                  <label className="form-check-label" htmlFor="flexRadioDefault1tsa1qs">
+                  <input onClick={() => subjectCheckboxHandler("ratingFour", "4-4")} className="form-check-input" type="checkbox" name="flexRadioDefault" id="flexRadioDefault1tsa1q" />
+                  <label className="form-check-label">
+                    <ul>
+                      <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
+                      <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
+                      <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
+                      <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
+                    </ul>
+                  </label>
+                </div>
+                <div className="form-check">
+                  <input onClick={() => subjectCheckboxHandler("ratingFive", "5-5")} className="form-check-input" type="checkbox" name="flexRadioDefault" id="flexRadioDefault1tsa1qs" />
+                  <label className="form-check-label">
                     <ul>
                       <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
                       <li><img src="./assets/images/star-half.svg" alt="Star" className="img-fluid" /></li>
@@ -324,11 +436,10 @@ const ClassManagement = () => {
 
               </div>
               <div className="rightbar-filter-bttn">
-                <a href="#">Apply</a>
+                <a href="#" onClick={() => filterClickListener()}>Apply</a>
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>

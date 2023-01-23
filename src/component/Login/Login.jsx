@@ -75,22 +75,22 @@ const Login = () => {
                                     <form onSubmit={(e) => e.preventDefault()}>
                                         <div className="row">
                                             <div className="col-lg-8 col-md-9">
-                                                <h1>Login to continue</h1>
-
-                                                <p>Enter your Email address and password</p>
-
-                                                <div className="form-floating mb-3">
-                                                    <input value={formData?.email} onChange={(e) => onChangeHandler('email', e)} type="email" className="form-control" id="floatingInput" placeholder="Enter your Email" />
-                                                    <label htmlFor="floatingInput">Enter your Email</label>
-                                                </div>
-                                                <div className="form-floating mb-5">
-                                                    <input value={formData?.password} onChange={(e) => onChangeHandler('password', e)} type="password" className="form-control" id="floatingPassword" placeholder="Enter your Password" />
-                                                    <label htmlFor="floatingPassword">Enter your Password</label>
-                                                </div>
-                                                <br />
-                                                <br />
-                                                <div className="form-submit-bttn mt-5">
-                                                    <button onClick={() => omSubmitHandler()} className="btn btn-sub mt-5">Login</button>
+                                                <div style={{paddingRight: "1.5rem"}}>
+                                                    <h1>Login to continue</h1>
+                                                    <p>Enter your Email address and password</p>
+                                                    <div className="form-floating mb-3">
+                                                        <input value={formData?.email} onChange={(e) => onChangeHandler('email', e)} type="email" className="form-control" id="floatingInput" placeholder="Enter your Email" />
+                                                        <label htmlFor="floatingInput">Enter your Email</label>
+                                                    </div>
+                                                    <div className="form-floating mb-5">
+                                                        <input value={formData?.password} onChange={(e) => onChangeHandler('password', e)} type="password" className="form-control" id="floatingPassword" placeholder="Enter your Password" />
+                                                        <label htmlFor="floatingPassword">Enter your Password</label>
+                                                    </div>
+                                                    <br />
+                                                    <br />
+                                                    <div className="form-submit-bttn mt-5">
+                                                        <button onClick={() => omSubmitHandler()} className="btn btn-sub mt-5">Login</button>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div className="col-lg-4 col-md-3">
