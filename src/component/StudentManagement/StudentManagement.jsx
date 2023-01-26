@@ -78,7 +78,7 @@ const StudentManagement = () => {
     } else {
       filterObj[key] = value;
     }
-    // console.log(filterObj, "fff");
+    console.log(filterObj, "fff");
   };
 
   const inputFilterHandler = (key, e) => {
@@ -90,7 +90,16 @@ const StudentManagement = () => {
     // console.log(filterObj, "input");
   };
 
+  const switchToFirstTab = () => {
+    tabClickHandler("All", "pills-home", 0);
+    var homeTabTrigger = document.querySelector('#pills-home-tab');
+    // eslint-disable-next-line no-undef
+    var tab = new bootstrap.Tab(homeTabTrigger);
+    tab.show();
+  };
+
   const onSearchHandler = (e) => {
+    switchToFirstTab();
     let searchResutl = (filterFlag ? filterQueryData : response.data.students).filter((list) => {
       if (list?.firstName?.includes(e.target.value) || list?.lastName?.includes(e.target.value)) {
         return list
@@ -108,6 +117,7 @@ const StudentManagement = () => {
   };
 
   const filterClickListener = () => {
+    switchToFirstTab();
     if (Object.keys(filterObj).length === 0) {
       setSearchFlag(false);
       setfilterFlag(false);
@@ -169,7 +179,7 @@ const StudentManagement = () => {
     });
 
     setfilterQueryData(filterResult);
-    // console.log(filterResult, "fff resutl");
+    console.log(filterResult, "fff resutl");
     setSearchFlag(false);
     setfilterFlag(true);
   };

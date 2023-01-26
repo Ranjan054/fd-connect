@@ -44,9 +44,7 @@ const ClassManagement = () => {
   const [filterQueryData, setfilterQueryData] = useState([]);
   const [searchFlag, setSearchFlag] = useState(false);
   const [searchData, setSearchyData] = useState([]);
-  // const [loading, setLoading] = useState(false);
-  const [show, setShow] = useState(false);
-  const [id, setId] = useState("");
+  const [loading, setLoading] = useState(false);
 
 
   const response = useFetch({
@@ -55,6 +53,7 @@ const ClassManagement = () => {
   });
 
   const tabClickHandler = (tab, ctr, index) => {
+    console.log(index, "indexxxxxxxx");
     // setLoading(true);
     if (index === 0) {
       setFlag(false);
@@ -73,7 +72,7 @@ const ClassManagement = () => {
     } else {
       filterObj[key] = value;
     }
-    // console.log(filterObj, "fff");
+    console.log(filterObj, "fff");
   };
 
   const inputFilterHandler = (key, e) => {
@@ -85,7 +84,16 @@ const ClassManagement = () => {
     // console.log(filterObj, "input");
   };
 
+  const switchToFirstTab = () => {
+    tabClickHandler("All", "pills-home", 0);
+    var homeTabTrigger = document.querySelector('#pills-home-tab');
+    // eslint-disable-next-line no-undef
+    var tab = new bootstrap.Tab(homeTabTrigger);
+    tab.show();
+  };
+
   const onSearchHandler = (e) => {
+    switchToFirstTab();
     let searchResutl = (filterFlag ? filterQueryData : response.data.list).filter((list) => {
       if (list?.mentorDetails[0]?.mentorFirstName?.includes(e.target.value) || list?.studentDetails[0]?.studentFirstName?.includes(e.target.value)) {
         return list
@@ -99,10 +107,11 @@ const ClassManagement = () => {
 
   const userTypeHandler = (key, value) => {
     filterObj[key] = value;
-    // console.log(filterObj, "type");
+    console.log(filterObj, "type");
   };
 
   const filterClickListener = () => {
+    switchToFirstTab();
     if (Object.keys(filterObj).length === 0) {
       setSearchFlag(false);
       setfilterFlag(false);
@@ -113,7 +122,7 @@ const ClassManagement = () => {
       if (filterObj?.userType && (filterObj?.userType === "all" || filterObj?.userType === list?.userType)) {
         return list;
       }
-      if (filterObj?.userType && filterObj?.userType === list?.userType) {
+      if (filterObj?.userType && filterObj?.userType === list?.mentorDetails[0]?.userType) {
         return list;
       }
       if (filterObj?.inputSearch && list.classSubject && list.classSubject?.toLowerCase() === filterObj?.inputSearch?.toLowerCase()) {
@@ -140,23 +149,23 @@ const ClassManagement = () => {
       if (filterObj?.medical && list.classSubject && list.classSubject?.toLowerCase() === filterObj?.medical?.toLowerCase()) {
         return list;
       }
-      if (list?.userType === 3 || list?.userType === 2) {
+      if (list?.mentorDetails[0]?.userType === 3 || list?.mentorDetails[0]?.userType === 2) {
         if (filterObj?.ratingAny && parseInt(list.averageRating) >= filterObj?.ratingAny?.split("-")[0] && parseInt(list.averageRating) <= filterObj?.ratingAny?.split("-")[1]) {
           return list;
         }
-        if (filterObj?.ratingOne && Math.round(list.averageRating) === parseInt(filterObj?.ratingOne?.split("-")[0])) {
+        if (filterObj?.ratingOne && Math.round(list.mentorDetails[0]?.averageRating) === parseInt(filterObj?.ratingOne?.split("-")[0])) {
           return list;
         }
-        if (filterObj?.ratingTwo && Math.round(list.averageRating) === parseInt(filterObj?.ratingTwo?.split("-")[0])) {
+        if (filterObj?.ratingTwo && Math.round(list.mentorDetails[0]?.averageRating) === parseInt(filterObj?.ratingTwo?.split("-")[0])) {
           return list;
         }
-        if (filterObj?.ratingThree && Math.round(list.averageRating) === parseInt(filterObj?.ratingThree?.split("-")[0])) {
+        if (filterObj?.ratingThree && Math.round(list.mentorDetails[0]?.averageRating) === parseInt(filterObj?.ratingThree?.split("-")[0])) {
           return list;
         }
-        if (filterObj?.ratingFour && Math.round(list.averageRating) === parseInt(filterObj?.ratingFour?.split("-")[0])) {
+        if (filterObj?.ratingFour && Math.round(list.mentorDetails[0]?.averageRating) === parseInt(filterObj?.ratingFour?.split("-")[0])) {
           return list;
         }
-        if (filterObj?.ratingFive && Math.round(list.averageRating) === parseInt(filterObj?.ratingFive?.split("-")[0])) {
+        if (filterObj?.ratingFive && Math.round(list.mentorDetails[0]?.averageRating) === parseInt(filterObj?.ratingFive?.split("-")[0])) {
           return list;
         }
       }
@@ -164,7 +173,7 @@ const ClassManagement = () => {
     });
 
     setfilterQueryData(filterResult);
-    // console.log(filterResult, "fff resutl");
+    console.log(filterResult, "fff resutl");
     setSearchFlag(false);
     setfilterFlag(true);
   };
@@ -219,20 +228,18 @@ const ClassManagement = () => {
                               <div className="class-list-doctor">
                                 <img src={el?.mentorDetails[0]?.mentorProfilePicture} alt={el?.mentorDetails[0]?.mentorFirstName} className="img-fluid profile-img" />
                                 <h5>{el?.mentorDetails[0]?.mentorFirstName} {el?.mentorDetails[0]?.mentorLastName}</h5>
-
-                                {/* <ul>
+                                <ul>
                                   {
                                     [...Array(Math.round(el?.mentorDetails[0]?.averageRating))].map((e, i) =>
                                       <li key={i}><i className="fas fa-star"></i></li>)
                                   }
                                   <li><span> {Math.round(el?.mentorDetails[0]?.averageRating)} <div className="text-dark d-inline">({el?.mentorDetails[0]?.totalRating})</div></span></li>
-                                </ul> */}
-
+                                </ul>
                               </div>
                             </div>
                             <div className="col-md-4">
                               <div className="join-box-wrap">
-                                <h6>{el?.id}</h6>
+                                <h6>{el?.classShortId}</h6>
                                 <img src={"./assets/images/" + classStatus(el?.classStatus) + ".svg"} alt={classStatus(el?.classStatus)} className="img-fluid" />
                                 <h4>{el?.classSubject}</h4>
                                 <p>{el?.classDuration} <i className="fas fa-circle"></i> <strong className={`text-${classStatus(el?.classStatus)}`}>{classStatus(el?.classStatus)}</strong></p>

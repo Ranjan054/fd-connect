@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useFetch } from '../../hooks/useFetch'
 import Spinner from '../Spinner/Spinner';
 import { status } from '../../utils/type-util'
@@ -53,6 +53,7 @@ const DoctorManagement = () => {
     // setLoading(true);
     if (index === 0) {
       setFlag(false);
+      setShowTab(ctr);
       // setLoading(false);
       return;
     }
@@ -88,10 +89,19 @@ const DoctorManagement = () => {
       return;
     }
     filterObj[key] = e.target.value;
-    // console.log(filterObj, "input");
+    console.log(filterObj, "input");
   };
 
+  const switchToFirstTab = () => {
+    tabClickHandler("All", "pills-home", 0);
+    var homeTabTrigger = document.querySelector('#pills-home-tab');
+    // eslint-disable-next-line no-undef
+    var tab = new bootstrap.Tab(homeTabTrigger);
+    tab.show();
+  }
+
   const onSearchHandler = (e) => {
+    switchToFirstTab();
     // let searchResutl = ( filterFlag || (!filterFlag && searchFlag) ? filterQueryData : response.data.doctors).filter((list) => {
     let searchResutl = (filterFlag ? filterQueryData : response.data.doctors).filter((list) => {
       if (list?.firstName?.includes(e.target.value) || list?.lastName?.includes(e.target.value)) {
@@ -110,12 +120,13 @@ const DoctorManagement = () => {
   };
 
   const filterClickListener = () => {
+    switchToFirstTab();
     if (Object.keys(filterObj).length === 0) {
       setSearchFlag(false);
       setfilterFlag(false);
       return;
     }
-    // console.log(filterObj, "out");
+    console.log(filterObj, "out");
     let filterResult = response?.data?.doctors.filter((list) => {
       if (filterObj?.inputSearch && list.studyBranch && list.studyBranch?.toLowerCase() === filterObj?.inputSearch?.toLowerCase()) {
         return list;
@@ -144,6 +155,9 @@ const DoctorManagement = () => {
       if (filterObj?.experience && list.haveTeachingExperience >= filterObj?.experience?.split("-")[0] && list.haveTeachingExperience <= filterObj?.experience?.split("-")[1]) {
         return list;
       }
+      if (filterObj?.minExp && filterObj?.maxExp && list.haveTeachingExperience >= filterObj?.minExp && list.haveTeachingExperience <= filterObj?.maxExp) {
+        return list;
+      }
       if (filterObj?.ratingAny && parseInt(list.averageRating) >= filterObj?.ratingAny?.split("-")[0] && parseInt(list.averageRating) <= filterObj?.ratingAny?.split("-")[1]) {
         return list;
       }
@@ -166,7 +180,7 @@ const DoctorManagement = () => {
     });
 
     setfilterQueryData(filterResult);
-    // console.log(filterResult, "fff resutl");
+    console.log(filterResult, "fff resutl");
     setSearchFlag(false);
     setfilterFlag(true);
   };
@@ -345,14 +359,14 @@ const DoctorManagement = () => {
                     </label>
                   </div>
 
-                  {/* <div className="row mt-3">
+                  <div className="row mt-3">
                     <div className="col-4">
-                      <input type="number" className="form-control" placeholder="Min..." style={{ background: "rgba(244, 244, 244, 0.7", borderRadius: "7px", height: "34px" }} />
+                      <input onChange={(e) => inputFilterHandler("minExp", e)} min="0" type="number" className="form-control" placeholder="Min..." style={{ background: "rgba(244, 244, 244, 0.7", borderRadius: "7px", height: "34px" }} />
                     </div>
                     <div className="col-4">
-                      <input type="number" className="form-control" placeholder="Max..." style={{ background: "rgba(244, 244, 244, 0.7", borderRadius: "7px", height: "34px" }} />
+                      <input onChange={(e) => inputFilterHandler("maxExp", e)} min="0" type="number" className="form-control" placeholder="Max..." style={{ background: "rgba(244, 244, 244, 0.7", borderRadius: "7px", height: "34px" }} />
                     </div>
-                  </div> */}
+                  </div>
 
                 </div>
                 <div className="rightbar-ratings-filter-wrap">

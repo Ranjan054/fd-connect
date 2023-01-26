@@ -20,24 +20,24 @@ const ChangePassword = () => {
   }
 
   const omSubmitHandler = () => {
-    // console.log(formField)
-    // axios.post(`${BASE_URL}/admin/login`, {
-    //   ...formField,
-    // })
-    //   .then((res) => {
-    //     if (res.data.token) {
-    //       localStorage.clear();
-    //       localStorage.setItem("token", res.data.token);
-    //       // document.cookie = `token=${res.data.token}`;
-    //       setShowSuccess(true)
-    //       setTimeout(() => {
-    //         navigate("/", { replace: true })
-    //       }, 200)
-    //     } else {
-    //       setShow(true)
-    //     }
-    //   })
-    //   .catch((err) => console.log(err, "error log"))
+    console.log(formField)
+    axios.post(`${BASE_URL}/admin/forgetPasswordAdmin`, {
+      ...formField,
+    })
+      .then((res) => {
+        if (res.data.status === 200) {
+          localStorage.clear();
+          // localStorage.setItem("token", res.data.token);
+          // document.cookie = `token=${res.data.token}`;
+          // setShowSuccess(true);
+          setTimeout(() => {
+            navigate("/", { replace: true })
+          }, 200)
+        } else if (res.data.status === 404) {
+          alert(res?.data?.message)
+        }
+      })
+      .catch((err) => console.log(err, "error log"))
   }
 
   return (
