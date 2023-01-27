@@ -45,6 +45,7 @@ const ClassManagement = () => {
   const [searchFlag, setSearchFlag] = useState(false);
   const [searchData, setSearchyData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showDateField, setShowDateField] = useState(false)
 
 
   const response = useFetch({
@@ -53,7 +54,6 @@ const ClassManagement = () => {
   });
 
   const tabClickHandler = (tab, ctr, index) => {
-    console.log(index, "indexxxxxxxx");
     // setLoading(true);
     if (index === 0) {
       setFlag(false);
@@ -72,7 +72,7 @@ const ClassManagement = () => {
     } else {
       filterObj[key] = value;
     }
-    console.log(filterObj, "fff");
+    // console.log(filterObj, "fff");
   };
 
   const inputFilterHandler = (key, e) => {
@@ -106,8 +106,14 @@ const ClassManagement = () => {
   };
 
   const userTypeHandler = (key, value) => {
+    if (value === "any") {
+      setShowDateField(false);
+    }
+    if (value === "custom") {
+      setShowDateField(true);
+    }
     filterObj[key] = value;
-    console.log(filterObj, "type");
+    // console.log(filterObj, "type");
   };
 
   const filterClickListener = () => {
@@ -169,11 +175,16 @@ const ClassManagement = () => {
           return list;
         }
       }
-
+      if (filterObj?.bookingTime === "any") {
+        return list;
+      }
+      if (filterObj?.bookingTime === "custom" && filterObj?.bookingTimeStart && filterObj?.bookingTimeEnd && list?.createdOn >= new Date(filterObj?.bookingTimeStart).toISOString() && list.createdOn <= new Date(filterObj?.bookingTimeEnd).toISOString()) {
+        return list;
+      }
     });
 
     setfilterQueryData(filterResult);
-    console.log(filterResult, "fff resutl");
+    // console.log(filterResult, "fff resutl");
     setSearchFlag(false);
     setfilterFlag(true);
   };
@@ -442,6 +453,36 @@ const ClassManagement = () => {
                 </div>
 
               </div>
+
+              <h4 className="mt-4">Booking Time</h4>
+              <div className='date-range-wrapper '>
+                <div className="form-check">
+                  <input onClick={() => userTypeHandler("bookingTime", "any")} className="form-check-input" type="radio" name="flexRadioDefaultDate" id="flexRadioDefault7" />
+                  <label className="form-check-label">
+                    Any
+                  </label>
+                </div>
+                <div className="form-check">
+                  <input onClick={() => userTypeHandler("bookingTime", "custom")} className="form-check-input" type="radio" name="flexRadioDefaultDate" id="flexRadioDefault18" />
+                  <label className="form-check-label">
+                    Custom
+                  </label>
+                  {
+                    showDateField && <div className='date-wrapper'>
+                      <div>
+                        <p>From</p>
+                        <input onChange={(e) => inputFilterHandler("bookingTimeStart", e)} className='date-picker' type="date" name="dateFrom" id="" />
+                      </div>
+                      <div>
+                        <p>To</p>
+                        <input onChange={(e) => inputFilterHandler("bookingTimeEnd", e)} className='date-picker' type="date" name="dateTo" id="" />
+                      </div>
+                    </div>
+                  }
+
+                </div>
+              </div>
+
               <div className="rightbar-filter-bttn">
                 <a href="#" onClick={() => filterClickListener()}>Apply</a>
               </div>

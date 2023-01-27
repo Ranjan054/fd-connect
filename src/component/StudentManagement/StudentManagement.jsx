@@ -179,7 +179,7 @@ const StudentManagement = () => {
     });
 
     setfilterQueryData(filterResult);
-    console.log(filterResult, "fff resutl");
+    // console.log(filterResult, "fff resutl");
     setSearchFlag(false);
     setfilterFlag(true);
   };

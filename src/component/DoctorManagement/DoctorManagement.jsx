@@ -89,7 +89,7 @@ const DoctorManagement = () => {
       return;
     }
     filterObj[key] = e.target.value;
-    console.log(filterObj, "input");
+    // console.log(filterObj, "input");
   };
 
   const switchToFirstTab = () => {
@@ -126,7 +126,7 @@ const DoctorManagement = () => {
       setfilterFlag(false);
       return;
     }
-    console.log(filterObj, "out");
+    // console.log(filterObj, "out");
     let filterResult = response?.data?.doctors.filter((list) => {
       if (filterObj?.inputSearch && list.studyBranch && list.studyBranch?.toLowerCase() === filterObj?.inputSearch?.toLowerCase()) {
         return list;
@@ -180,7 +180,7 @@ const DoctorManagement = () => {
     });
 
     setfilterQueryData(filterResult);
-    console.log(filterResult, "fff resutl");
+    // console.log(filterResult, "fff resutl");
     setSearchFlag(false);
     setfilterFlag(true);
   };

@@ -1475,3 +1475,21 @@ button:focus-within {
 .mentor-subject > img {
     border-radius: 8px;
 }
+
+.date-range-wrapper {
+    padding: 0 1.7rem;
+}
+
+.date-range-wrapper > .form-check {
+    padding: 0.4rem 0;
+}
+
+.date-wrapper {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.date-picker {
+    width: 6.875rem;
+}
