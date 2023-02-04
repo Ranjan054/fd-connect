@@ -1493,3 +1493,8 @@ button:focus-within {
 .date-picker {
     width: 6.875rem;
 }
+
+.list-item-scroll {
+    max-height: 350px;
+    overflow-y: auto;
+}

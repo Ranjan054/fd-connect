@@ -4,7 +4,7 @@ import { useFetch } from '../../hooks/useFetch';
 import { classStatus } from '../../utils/type-util';
 import Spinner from '../Spinner/Spinner';
 
-let filterObj = {};
+let filterObj = {subject: {}};
 
 const ClassManagement = () => {
 
