@@ -65,9 +65,9 @@ const StudentManagement = () => {
   }
   // console.log(filterSubject, "filterSubject")
 
-  if (searchFlag) {
+  if (searchFlag && !subjectListFlag) {
     const subjectInput = document.getElementById("subjectInput");
-    subjectInput.focus();
+    if(subjectInput.value.length === 1) subjectInput.focus();    
   }
 
   const tabClickHandler = (tab, ctr, index) => {
@@ -99,7 +99,7 @@ const StudentManagement = () => {
     } else {
       filterObj.subject[key] = value;
     }
-    console.log(filterObj, "fff");
+    // console.log(filterObj, "fff");
   };
 
   const ratingCheckboxHandler = (key, value) => {
@@ -108,7 +108,7 @@ const StudentManagement = () => {
     } else {
       filterObj[key] = value;
     }
-    console.log(filterObj, "fff");
+    // console.log(filterObj, "fff");
   };
 
   const inputSearchFilterHandler = (e) => {
@@ -122,7 +122,7 @@ const StudentManagement = () => {
         return true;
       }
     });
-    console.log(filteredSubjectList, "filteredSubjectList")
+    // console.log(filteredSubjectList, "filteredSubjectList")
     setSubjectList(filteredSubjectList);
     setSubjectListFlag(true);
   };
@@ -150,12 +150,12 @@ const StudentManagement = () => {
 
   const userTypeHandler = (key, value) => {
     filterObj[key] = value;
-    console.log(filterObj, "type");
+    // console.log(filterObj, "type");
   };
 
   const filterClickListener = () => {
     switchToFirstTab();
-    if (Object.keys(filterObj).length === 0) {
+    if (Object.keys(filterObj).length <= 1 && Object.keys(filterObj.subject).length === 0) {
       setSearchFlag(false);
       setfilterFlag(false);
       return;
@@ -172,7 +172,7 @@ const StudentManagement = () => {
         let filteredSubject = false;
         Object.keys(filterObj.subject).forEach((el) => {
           if (list.studyBranch?.toLowerCase() === filterObj.subject[el].toLowerCase()) {
-            console.log(filterObj.subject[el], list.studyBranch, "iffffff--search filter data")
+            // console.log(filterObj.subject[el], list.studyBranch, "iffffff--search filter data")
             filteredSubject = true;
           }
         })
@@ -202,7 +202,7 @@ const StudentManagement = () => {
     });
 
     setfilterQueryData(filterResult);
-    console.log(filterResult, "fff resutl");
+    // console.log(filterResult, "fff resutl");
     setSearchFlag(false);
     setfilterFlag(true);
   };
@@ -318,7 +318,6 @@ const StudentManagement = () => {
                       </div>
                     )
                   }
-
                   {
                     subjectListFlag && subjectList.map((el) =>
                       <div key={el} className="form-check">

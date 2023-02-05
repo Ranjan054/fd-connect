@@ -65,7 +65,7 @@ const DoctorManagement = () => {
 
   if (searchFlag) {
     const subjectInput = document.getElementById("subjectInput");
-    subjectInput.focus();
+    if(subjectInput.value.length === 1) subjectInput.focus();    
   }
   // console.log(filterSubject, "filterSubject")
 
@@ -100,7 +100,7 @@ const DoctorManagement = () => {
     } else {
       filterObj.subject[key] = value;
     }
-    console.log(filterObj, "fff");
+    // console.log(filterObj, "fff");
   };
 
   const ratingCheckboxHandler = (key, value) => {
@@ -109,7 +109,7 @@ const DoctorManagement = () => {
     } else {
       filterObj[key] = value;
     }
-    console.log(filterObj, "fff");
+    // console.log(filterObj, "fff");
   };
 
   const inputSearchFilterHandler = (e) => {
@@ -123,7 +123,7 @@ const DoctorManagement = () => {
         return true;
       }
     });
-    console.log(filteredSubjectList, "filteredSubjectList")
+    // console.log(filteredSubjectList, "filteredSubjectList")
     setSubjectList(filteredSubjectList);
     setSubjectListFlag(true);
   };
@@ -147,7 +147,7 @@ const DoctorManagement = () => {
     setSearchyData(searchResutl);
     setfilterFlag(false);
     setSearchFlag(true);
-    console.log("search worke", e.target.value, searchResutl);
+    // console.log("search worke", e.target.value, searchResutl);
   };
 
   // const expFilterHandler = (key, value) => {
@@ -155,10 +155,8 @@ const DoctorManagement = () => {
   // };
 
   const filterClickListener = () => {
-    console.log(Object.keys(filterObj.subject).length, Object.keys(filterObj).length, "true")
     switchToFirstTab();
     if (Object.keys(filterObj).length <= 1 && Object.keys(filterObj.subject).length === 0) {
-      console.log("apply filetr if")
       setSearchFlag(false);
       setfilterFlag(false);
       return;
@@ -170,7 +168,7 @@ const DoctorManagement = () => {
         let filteredSubject = false;
         Object.keys(filterObj.subject).forEach((el) => {
           if (list.studyBranch?.toLowerCase() === filterObj.subject[el].toLowerCase()) {
-            console.log(filterObj.subject[el], list.studyBranch, "iffffff--search filter data")
+            // console.log(filterObj.subject[el], list.studyBranch, "iffffff--search filter data")
             filteredSubject = true;
           }
         })
@@ -200,7 +198,7 @@ const DoctorManagement = () => {
     });
 
     setfilterQueryData(filterResult);
-    console.log(filterResult, "fff resutl");
+    // console.log(filterResult, "fff resutl");
     setSearchFlag(false);
     setfilterFlag(true);
   };
