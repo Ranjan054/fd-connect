@@ -1488,10 +1488,14 @@ button:focus-within {
     display: flex;
     justify-content: space-between;
     margin-top: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
 }
 
 .date-picker {
     width: 6.875rem;
+    border: none;
+    color: #979797;
 }
 
 .list-item-scroll {
