@@ -357,7 +357,7 @@ const ClassManagement = () => {
               </div>
 
               <h4 className="mt-4">Subject</h4>
-              <div className="rightbar-subject-filter-wrap">
+              <div className="rightbar-subject-filter-wrap list-item-scroll">
 
                 <div className="row">
                   <div className="col-12">
